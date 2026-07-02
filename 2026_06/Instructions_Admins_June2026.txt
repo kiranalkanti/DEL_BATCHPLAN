@@ -1,0 +1,50 @@
+
+----------------------------------------------------------------------------------------------------------------------------------
+Dipak,
+
+None
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+Max/Saurabh,
+
+The DB Sync Activity dates are falling on 7/3(Fri),7/8(Wed) and 7/15(Wed). Can you please plan accordingly.
+
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+Weekly_Sunday_Master                 ->                                 -> 6/28/2026 12:00PM (Sun) runs for 34 hrs
+
+prov_mem_nfo_tpl_pa_Retro            -> Files: 6/28(Sun 11AM)           -> 6/30/2026 6:00AM (Tue) runs for 24 hrs
+UPIC                                 -> 								-> 6/30/2026 2:00PM (Tue) runs for 3 hrs
+
+Monthly_Master_Run_FFSCLM 			 -> Files: 6/29(Mon) 				-> 7/01/2026 6:00AM (Wed) runs for 6 hrs
+SOC(Share of Cost),TPL,FFSD Claim    -> Files: 6/29(Mon 11PM & 1AM)     -> 7/01/2026 12:00PM(Wed) runs for 1hr and 20min
+
+Monthly_Master_Run_ENCCLM_COST_AVD    ->                                 -> 7/1/2026  02:00:00 PM (Wed) runs for 5 hrs
+Monthly_Master_Run_PROV_OWN           -> Files: 7/01(Wed 5PM)            -> 7/1/2026  07:00:00 PM (Wed) runs for 10min
+Absence Off                                                              -> 7/1/2026  07:10:00 PM (Wed) runs for 30min
+
+PRD_REPORTING_MONTHLY_JOB                                                -> 7/1/2026  07:45:00 PM (Wed) runs for 4hrs
+PRD_REPORTING_SURS_QUARTERLY_JOB                                         -> 7/1/2026  11:45:00 PM (Wed) runs for 30min
+PRD_REPORTING_SEDS_QUARTERLY_JOB                                         -> 7/2/2026  12:15:00 AM (Thu) runs for 30min
+PRD_REPORTING_PI_QUARTER_2_ANNUALLY_JOB                                  -> 7/2/2026  12:45:00 AM (Thu) runs for 23hrs
+PRD_REPORTING_QOC_QUARTERLY_JOB                                          -> 7/2/2026  11:45:00 PM (Thu) runs for 30min
+
+DB Sync                              ->                                 -> 7/3/2026  6:00:00 PM (Fri)
+
+Monthly_Master_Run_FAPA                                                 -> 7/7/2026  9:30:00 PM (Tue) 20min
+Monthly_Master_Run_FTX                                                  -> 7/7/2026 10:00:00 PM (Tue) 30min
+PRD_REPORTING_CMS64_QUARTERLY_JOB                                       -> 7/7/2026 10:30:00 PM (Tue) 10min
+PRD_REPORTING_CERTIFICATION_METRIC_MONTHLY_JOB                          -> 7/7/2026 10:45:00 PM (Tue) 30min
+
+DB Sync                              ->                                 -> 7/8/2026  6:00:00 PM (Wed)
+
+OPTUMAS                              ->                                 -> 7/13/2026 8:00:00 AM (Mon)
+
+DB Sync                              ->                                 -> 7/15/2026 6:00:00 PM (Wed)
+
+
+----------------------------------------------------------------------------------------------------------------------------------

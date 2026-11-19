@@ -1,0 +1,7 @@
+
+cd /data/Claims/Daily_State_Files_Sudesh/
+
+cd /data/Claims/Daily_State_Files_Sudesh/837P
+
+find . -maxdepth 1 -type d -name "*-19"
+find . -maxdepth 1 -type d -name "*-20"

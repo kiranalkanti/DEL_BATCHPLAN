@@ -1,0 +1,3498 @@
+BEGIN HEADER
+   CharacterSet "CP1252"
+   ExportingTool "IBM InfoSphere DataStage Export"
+   ToolVersion "8"
+   ServerName "PANVLHIAAP03.NEHEALTHINTERACTIVE.COM"
+   ToolInstanceID "NE_DMA"
+   MDISVersion "1.0"
+   Date "2026-11-25"
+   Time "12.36.53"
+   ServerVersion "11.7"
+END HEADER
+BEGIN DSJOB
+   Identifier "J_1_DATE_PREP"
+   DateModified "2020-08-31"
+   TimeModified "09.17.15"
+   BEGIN DSRECORD
+      Identifier "ROOT"
+      OLEType "CJobDefn"
+      Readonly "0"
+      Name "J_1_DATE_PREP"
+      NextID "12"
+      Container "V0"
+      JobVersion "56.0.0"
+      ControlAfterSubr "0"
+      Parameters "CParameters"
+      BEGIN DSSUBRECORD
+         Name "PsetNeDmaConnection"
+         Prompt "PsetNeDmaConnection parameters"
+         Default "(As pre-defined)"
+         ParamType "13"
+         ParamLength "0"
+         ParamScale "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "PsetNeDmaParams"
+         Prompt "PsetNeDmaParams parameters"
+         Default "(As pre-defined)"
+         ParamType "13"
+         ParamLength "0"
+         ParamScale "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "FILE_TYPE"
+         Prompt "FILE_TYPE"
+         ParamType "0"
+         ParamLength "0"
+         ParamScale "0"
+      END DSSUBRECORD
+      MetaBag "CMetaProperty"
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "AdvancedRuntimeOptions"
+         Value "#DSProjectARTOptions#"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "TraceMode"
+         Value "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "TraceSeq"
+         Value "1"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "TraceRecords"
+         Value "100"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "TraceSkip"
+         Value "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "TracePeriod"
+         Value "1"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "RecordJobPerformanceData"
+         Value "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "IdentList"
+         Value "Db_Provr_Tx|Tfm_Date|Db_Provr_Dt_Matrix|RemDup_Dt|Jn_Date|Db_Provr_MaxElgt|LkUp_Dt|Db_Ref_FromDt|Ftr_Dt|LkUp_To_Dt|Db_Ref_ToDt"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "ClientCodePage"
+         Value "1252"
+      END DSSUBRECORD
+      NULLIndicatorPosition "0"
+      OrchestrateCode =+=+=+=
+#################################################################
+#### STAGE: Db_Provr_Tx
+## Operator
+pxbridge
+## Operator options
+-Orientation link
+-XMLProperties '<?xml version=\\'1.0\\' encoding=\\'UTF-16\\'?><Properties version=\\'1.1\\'><Common><Context type=\\'int\\'>1</Context><Variant type=\\'string\\'>9.1</Variant><DescriptorVersion type=\\'string\\'>1.0</DescriptorVersion><PartitionType type=\\'int\\'>-1</PartitionType><RCP type=\\'int\\'>0</RCP></Common><Connection><Instance modified=\\'1\\' type=\\'string\\'><![CDATA[[&"PsetNeDmaConnection.$DB2Instance"]]]></Instance><Database modified=\\'1\\' type=\\'string\\'><![CDATA[[&"PsetNeDmaConnection.$DB2Name"]]]></Database><Username modified=\\'1\\' type=\\'string\\'><![CDATA[[&"PsetNeDmaConnection.$DB2UserName"]]]></Username><Password modified=\\'1\\' type=\\'string\\'><![CDATA[[&"PsetNeDmaConnection.$DB2Password"]]]></Password><Conductor collapsed=\\'1\\' type=\\'bool\\'><![CDATA[0]]></Conductor><UseDirectConnections type=\\'bool\\'><![CDATA[0]]></UseDirectConnections><KeepConductorConnectionAlive type=\\'bool\\'><![CDATA[1]]></KeepConductorConnectionAlive></Connection><Usage><MigratedJob type=\\'bool\\'><![CDATA[0]]></MigratedJob><GenerateSQL type=\\'bool\\'><![CDATA[0]]></GenerateSQL><EnableQuotedIDs type=\\'bool\\'><![CDATA[0]]></EnableQuotedIDs><XMLColumnAsLOB type=\\'bool\\'><![CDATA[0]]></XMLColumnAsLOB><PrefixForExpressionColumns type=\\'string\\'><![CDATA[EXPR]]></PrefixForExpressionColumns><SQL><SelectStatement modified=\\'1\\' type=\\'string\\'><![CDATA[  SELECT distinct PROVR_ID, DATE AS ELIGIBLE_FROM, lead(DATE) over  (Partition By PROVR_ID order by PROVR_ID,DATE) AS  ELIGIBLE_TO FROM (
+ SELECT distinct PROVR_ID, DATE FROM (
+ SELECT distinct PROVR_ID, ELIGIBLE_FROM AS DATE
+ FROM (
+ SELECT distinct PROVR_ID, ELIGIBLE_FROM, ELIGIBLE_TO
+ FROM [&"PsetNeDmaConnection.$DB2SchemaNameIds"].T_PROVR_ELGT 
+ WHERE EFFV_END_DATE = \\'9999-12-31\\'  AND FILE_TYPE = \\'[&"FILE_TYPE"]\\'
+ 
+ Union All 
+ SELECT distinct PROVR_ID, PROVR_TAXONOMY_CLS_EFFV_DT AS ELIGIBLE_FROM, PROVR_TAXONOMY_CLS_END_DT AS ELIGIBLE_TO
+ FROM [&"PsetNeDmaConnection.$DB2SchemaNameIds"].T_PROVR_TAXONOMY_CLASS 
+ WHERE EFFV_END_DATE = \\'9999-12-31\\'  AND FILE_TYPE = \\'[&"FILE_TYPE"]\\'
+
+ Union All 
+ SELECT distinct PROVR_ID, PROVR_ENRL_EFFV_DT AS ELIGIBLE_FROM, PROVR_ENRL_END_DT AS ELIGIBLE_TO
+ FROM [&"PsetNeDmaConnection.$DB2SchemaNameIds"].T_PROVR_ENROLLMENT
+ WHERE EFFV_END_DATE = \\'9999-12-31\\'  AND FILE_TYPE = \\'[&"FILE_TYPE"]\\'
+ 
+ Union All
+ SELECT distinct GRP_MBR_PROVR_ID AS PROVR_ID,BEGIN_EFFV_DT AS ELIGIBLE_FROM,END_EFFV_DT AS ELIGIBLE_TO 
+ FROM [&"PsetNeDmaConnection.$DB2SchemaNameIds"].T_GROUP_PROVR
+ )
+ Union All
+ SELECT distinct PROVR_ID, ELIGIBLE_TO AS DATE
+ FROM (
+ SELECT distinct PROVR_ID, ELIGIBLE_FROM, ELIGIBLE_TO
+ FROM [&"PsetNeDmaConnection.$DB2SchemaNameIds"].T_PROVR_ELGT 
+ WHERE EFFV_END_DATE = \\'9999-12-31\\'  AND FILE_TYPE = \\'[&"FILE_TYPE"]\\'
+
+ Union All 
+ SELECT distinct PROVR_ID, PROVR_TAXONOMY_CLS_EFFV_DT AS ELIGIBLE_FROM, PROVR_TAXONOMY_CLS_END_DT AS ELIGIBLE_TO
+ FROM [&"PsetNeDmaConnection.$DB2SchemaNameIds"].T_PROVR_TAXONOMY_CLASS 
+ WHERE EFFV_END_DATE = \\'9999-12-31\\'  AND FILE_TYPE = \\'[&"FILE_TYPE"]\\'
+ 
+ Union All 
+ SELECT distinct PROVR_ID, PROVR_ENRL_EFFV_DT AS ELIGIBLE_FROM, PROVR_ENRL_END_DT AS ELIGIBLE_TO
+ FROM [&"PsetNeDmaConnection.$DB2SchemaNameIds"].T_PROVR_ENROLLMENT
+ WHERE EFFV_END_DATE = \\'9999-12-31\\'  AND FILE_TYPE = \\'[&"FILE_TYPE"]\\'
+ 
+ Union All
+ SELECT distinct GRP_MBR_PROVR_ID AS PROVR_ID,BEGIN_EFFV_DT AS ELIGIBLE_FROM,END_EFFV_DT AS ELIGIBLE_TO 
+ FROM [&"PsetNeDmaConnection.$DB2SchemaNameIds"].T_GROUP_PROVR
+ )
+ ) ORDER BY DATE ASC
+ );]]><ReadFromFileSelect type=\\'bool\\'><![CDATA[0]]></ReadFromFileSelect><Tables collapsed=\\'1\\'></Tables><Parameters collapsed=\\'1\\'></Parameters><Columns collapsed=\\'1\\'></Columns></SelectStatement><EnablePartitioning collapsed=\\'1\\' type=\\'bool\\'><![CDATA[0]]></EnablePartitioning></SQL><Transaction><RecordCount type=\\'int\\'><![CDATA[2000]]></RecordCount><EndOfWave collapsed=\\'1\\' type=\\'int\\'><![CDATA[0]]></EndOfWave></Transaction><Session><IsolationLevel type=\\'int\\'><![CDATA[1]]></IsolationLevel><AutocommitMode type=\\'int\\'><![CDATA[0]]></AutocommitMode><ArraySize type=\\'int\\'><![CDATA[2000]]></ArraySize><SchemaReconciliation><FailOnSizeMismatch type=\\'bool\\'><![CDATA[1]]></FailOnSizeMismatch><FailOnTypeMismatch type=\\'bool\\'><![CDATA[1]]></FailOnTypeMismatch><FailOnCodePageMismatch type=\\'bool\\'><![CDATA[0]]></FailOnCodePageMismatch></SchemaReconciliation><PassLobLocator collapsed=\\'1\\' type=\\'bool\\'><![CDATA[0]]></PassLobLocator></Session><BeforeAfter collapsed=\\'1\\' type=\\'bool\\'><![CDATA[0]]></BeforeAfter><ReOptimization type=\\'int\\'><![CDATA[2]]></ReOptimization><LockWaitMode collapsed=\\'1\\' type=\\'int\\'><![CDATA[1]]></LockWaitMode><LimitRows collapsed=\\'1\\' type=\\'bool\\'><![CDATA[0]]></LimitRows></Usage></Properties >'
+-connector '{
+   variant=\\'9.1\\', 
+   library=ccdb2, 
+   version=1.0, 
+   variantlist=\\'V1;9.1::ccdb2\\', 
+   versionlist=\\'1.0\\', 
+   name=DB2Connector
+}'
+-source 0 '{
+      DSDescription={PROVR_ID=\\'\\<none\\>\\', ELIGIBLE_FROM=\\'\\<none\\>\\'}, 
+      DSDisplayWidth={PROVR_ID=20, ELIGIBLE_FROM=10}, 
+      DSSQLType={PROVR_ID=12, ELIGIBLE_FROM=9, ELIGIBLE_TO=9}, 
+      DSSQLPrecision={PROVR_ID=50, ELIGIBLE_FROM=10, ELIGIBLE_TO=10}, 
+      DSSchema=\\'record
+         (
+           PROVR_ID\\:string\\[max\\=50\\]\\;
+           ELIGIBLE_FROM\\:nullable date\\;
+           ELIGIBLE_TO\\:nullable date\\;
+         )\\'
+}'
+   
+
+## General options
+[ident('Db_Provr_Tx'); jobmon_ident('Db_Provr_Tx')]
+## Outputs
+0> [modify (
+  PROVR_ID:not_nullable string[max=50]=PROVR_ID;
+  ELIGIBLE_FROM:nullable date=ELIGIBLE_FROM;
+  ELIGIBLE_TO:nullable date=ELIGIBLE_TO;
+keep
+  PROVR_ID,ELIGIBLE_FROM,ELIGIBLE_TO;
+)] 'Db_Provr_Tx:Lnk_In_Provr.v'
+;
+
+#################################################################
+#### STAGE: Tfm_Date
+## Operator
+transform
+## Operator options
+-flag run
+-name 'V0S55_J_1_DATE_PREP_Tfm_Date'
+
+## General options
+[ident('Tfm_Date'); jobmon_ident('Tfm_Date')]
+## Inputs
+0< [] 'LkUp_To_Dt:Lnk_In_Tfm.v'
+## Outputs
+0> [] 'Tfm_Date:Lnk_Out.v'
+;
+
+#################################################################
+#### STAGE: Db_Provr_Dt_Matrix
+## Operator
+pxbridge
+## Operator options
+-Orientation link
+-XMLProperties '<?xml version=\\'1.0\\' encoding=\\'UTF-16\\'?><Properties version=\\'1.1\\'><Common><Context type=\\'int\\'>2</Context><Variant type=\\'string\\'>9.1</Variant><DescriptorVersion type=\\'string\\'>1.0</DescriptorVersion><PartitionType type=\\'int\\'>-1</PartitionType><RCP type=\\'int\\'>0</RCP></Common><Connection><Instance modified=\\'1\\' type=\\'string\\'><![CDATA[[&"PsetNeDmaConnection.$DB2Instance"]]]></Instance><Database modified=\\'1\\' type=\\'string\\'><![CDATA[[&"PsetNeDmaConnection.$DB2Name"]]]></Database><Username modified=\\'1\\' type=\\'string\\'><![CDATA[[&"PsetNeDmaConnection.$DB2UserName"]]]></Username><Password modified=\\'1\\' type=\\'string\\'><![CDATA[[&"PsetNeDmaConnection.$DB2Password"]]]></Password><Conductor collapsed=\\'1\\' type=\\'bool\\'><![CDATA[0]]></Conductor><UseDirectConnections type=\\'bool\\'><![CDATA[0]]></UseDirectConnections><KeepConductorConnectionAlive type=\\'bool\\'><![CDATA[1]]></KeepConductorConnectionAlive></Connection><Usage><MigratedJob type=\\'bool\\'><![CDATA[0]]></MigratedJob><WriteMode type=\\'int\\'><![CDATA[0]]></WriteMode><GenerateSQL modified=\\'1\\' type=\\'bool\\'><![CDATA[1]]></GenerateSQL><TableName modified=\\'1\\' type=\\'string\\'><![CDATA[[&"PsetNeDmaConnection.$DB2SchemaNameIds"].T_PROVR_DATE_PREP]]></TableName><EnableQuotedIDs type=\\'bool\\'><![CDATA[0]]></EnableQuotedIDs><XMLColumnAsLOB type=\\'bool\\'><![CDATA[0]]></XMLColumnAsLOB><PrefixForExpressionColumns type=\\'string\\'><![CDATA[EXPR]]></PrefixForExpressionColumns><SQL></SQL><TableAction modified=\\'1\\' type=\\'int\\'><![CDATA[3]]><GenerateTruncateStatement type=\\'bool\\'><![CDATA[1]]><FailOnError type=\\'bool\\'><![CDATA[1]]></FailOnError></GenerateTruncateStatement></TableAction><Transaction><RecordCount type=\\'int\\'><![CDATA[2000]]></RecordCount></Transaction><Session><IsolationLevel type=\\'int\\'><![CDATA[1]]></IsolationLevel><AutocommitMode type=\\'int\\'><![CDATA[0]]></AutocommitMode><ArraySize type=\\'int\\'><![CDATA[2000]]></ArraySize><SchemaReconciliation><FailOnSizeMismatch type=\\'bool\\'><![CDATA[1]]></FailOnSizeMismatch><FailOnTypeMismatch type=\\'bool\\'><![CDATA[1]]></FailOnTypeMismatch><FailOnCodePageMismatch type=\\'bool\\'><![CDATA[0]]></FailOnCodePageMismatch><DropUnmatchedFields type=\\'bool\\'><![CDATA[1]]></DropUnmatchedFields></SchemaReconciliation><FailOnRowErrorPX type=\\'bool\\'><![CDATA[1]]></FailOnRowErrorPX><InsertBuffering type=\\'int\\'><![CDATA[0]]><AtomicArrays type=\\'int\\'><![CDATA[0]]></AtomicArrays></InsertBuffering></Session><Logging><LogColumnValues collapsed=\\'1\\' type=\\'bool\\'><![CDATA[0]]></LogColumnValues></Logging><BeforeAfter collapsed=\\'1\\' type=\\'bool\\'><![CDATA[0]]></BeforeAfter><ReOptimization type=\\'int\\'><![CDATA[2]]></ReOptimization><LockWaitMode collapsed=\\'1\\' type=\\'int\\'><![CDATA[1]]></LockWaitMode></Usage></Properties >'
+-connector '{
+   variant=\\'9.1\\', 
+   library=ccdb2, 
+   version=1.0, 
+   variantlist=\\'V1;9.1::ccdb2\\', 
+   versionlist=\\'1.0\\', 
+   name=DB2Connector
+}'
+-target 0 '{
+      DSDescription={PROVR_ID=\\'\\<none\\>\\', ELIGIBLE_FROM=\\'\\<none\\>\\'}, 
+      DSDisplayWidth={PROVR_ID=20, ELIGIBLE_FROM=10}, 
+      DSSQLType={PROVR_ID=12, ELIGIBLE_FROM=9, ELIGIBLE_TO=9}, 
+      DSDerivation={PROVR_ID=\\'Lnk_Out_RemDup\\.PROVR_ID\\', ELIGIBLE_FROM=\\'Lnk_Out_RemDup\\.ELIGIBLE_FROM\\', ELIGIBLE_TO=\\'Lnk_Out_RemDup\\.ELIGIBLE_TO\\'}, 
+      DSSQLPrecision={PROVR_ID=50, ELIGIBLE_FROM=10, ELIGIBLE_TO=10}, 
+      DSSchema=\\'record
+         (
+           PROVR_ID\\:string\\[max\\=50\\]\\;
+           ELIGIBLE_FROM\\:nullable date\\;
+           ELIGIBLE_TO\\:nullable date\\;
+         )\\'
+}'
+   
+
+## General options
+[ident('Db_Provr_Dt_Matrix'); jobmon_ident('Db_Provr_Dt_Matrix')]
+## Inputs
+0< [] 'Ftr_Dt:Lnk_Tgt_Itm_Mtx.v'
+;
+
+#### STAGE: RemDup_Dt.Lnk_Out_Part
+## Operator
+hash -key PROVR_ID -cs -key ELIGIBLE_FROM -key ELIGIBLE_TO
+## General options
+[ident('RemDup_Dt.Lnk_Out_Part')]
+## Inputs
+0< [] 'Tfm_Date:Lnk_Out.v'
+## Outputs
+0> [] 'Tfm_Date:Lnk_Out_Part.v'
+;
+
+#### STAGE: RemDup_Dt.Lnk_Out_Sort
+## Operator
+tsort -key PROVR_ID -cs -asc -key ELIGIBLE_FROM -asc -nulls first -key ELIGIBLE_TO -asc -nulls first -nonStable
+## General options
+[ident('RemDup_Dt.Lnk_Out_Sort')]
+## Inputs
+0< [] 'Tfm_Date:Lnk_Out_Part.v'
+## Outputs
+0> [] 'Tfm_Date:Lnk_Out_Part_Sort.v'
+;
+
+#################################################################
+#### STAGE: RemDup_Dt
+## Operator
+remdup
+## Operator options
+-keep first
+-key 'PROVR_ID'
+-key 'ELIGIBLE_FROM'
+-key 'ELIGIBLE_TO'
+
+## General options
+[ident('RemDup_Dt'); jobmon_ident('RemDup_Dt')]
+## Inputs
+0< [] 'Tfm_Date:Lnk_Out_Part_Sort.v'
+## Outputs
+0> [modify (
+keep
+  PROVR_ID,ELIGIBLE_FROM,ELIGIBLE_TO;
+)] 'RemDup_Dt:Lnk_Out_RemDup.v'
+;
+
+#### STAGE: Jn_Date.Lnk_In_Provr_Part
+## Operator
+hash -key PROVR_ID -cs
+## General options
+[ident('Jn_Date.Lnk_In_Provr_Part')]
+## Inputs
+0< [] 'Db_Provr_Tx:Lnk_In_Provr.v'
+## Outputs
+0> [] 'Db_Provr_Tx:Lnk_In_Provr_Part.v'
+;
+
+#### STAGE: Jn_Date.Lnk_In_Provr_Sort
+## Operator
+tsort -key PROVR_ID -cs -asc -nonStable
+## General options
+[ident('Jn_Date.Lnk_In_Provr_Sort')]
+## Inputs
+0< [] 'Db_Provr_Tx:Lnk_In_Provr_Part.v'
+## Outputs
+0> [] 'Db_Provr_Tx:Lnk_In_Provr_Part_Sort.v'
+;
+
+#### STAGE: Jn_Date.Lnk_In_MaxElgt_Part
+## Operator
+hash -key PROVR_ID -cs
+## General options
+[ident('Jn_Date.Lnk_In_MaxElgt_Part')]
+## Inputs
+0< [] 'Db_Provr_MaxElgt:Lnk_In_MaxElgt.v'
+## Outputs
+0> [] 'Db_Provr_MaxElgt:Lnk_In_MaxElgt_Part.v'
+;
+
+#### STAGE: Jn_Date.Lnk_In_MaxElgt_Sort
+## Operator
+tsort -key PROVR_ID -cs -asc -nonStable
+## General options
+[ident('Jn_Date.Lnk_In_MaxElgt_Sort')]
+## Inputs
+0< [] 'Db_Provr_MaxElgt:Lnk_In_MaxElgt_Part.v'
+## Outputs
+0> [] 'Db_Provr_MaxElgt:Lnk_In_MaxElgt_Part_Sort.v'
+;
+
+#################################################################
+#### STAGE: Jn_Date
+## Operator
+innerjoin
+## Operator options
+-key 'PROVR_ID'
+
+## General options
+[ident('Jn_Date'); jobmon_ident('Jn_Date')]
+## Inputs
+0< [] 'Db_Provr_Tx:Lnk_In_Provr_Part_Sort.v'
+1< [] 'Db_Provr_MaxElgt:Lnk_In_MaxElgt_Part_Sort.v'
+## Outputs
+0> [modify (
+keep
+  PROVR_ID,ELIGIBLE_FROM,ELIGIBLE_TO,MAX_ELGT;
+)] 'Jn_Date:Lnk_In_LkUp.v'
+;
+
+#################################################################
+#### STAGE: Db_Provr_MaxElgt
+## Operator
+pxbridge
+## Operator options
+-Orientation link
+-XMLProperties '<?xml version=\\'1.0\\' encoding=\\'UTF-16\\'?><Properties version=\\'1.1\\'><Common><Context type=\\'int\\'>1</Context><Variant type=\\'string\\'>9.1</Variant><DescriptorVersion type=\\'string\\'>1.0</DescriptorVersion><PartitionType type=\\'int\\'>-1</PartitionType><RCP type=\\'int\\'>0</RCP></Common><Connection><Instance modified=\\'1\\' type=\\'string\\'><![CDATA[[&"PsetNeDmaConnection.$DB2Instance"]]]></Instance><Database modified=\\'1\\' type=\\'string\\'><![CDATA[[&"PsetNeDmaConnection.$DB2Name"]]]></Database><Username modified=\\'1\\' type=\\'string\\'><![CDATA[[&"PsetNeDmaConnection.$DB2UserName"]]]></Username><Password modified=\\'1\\' type=\\'string\\'><![CDATA[[&"PsetNeDmaConnection.$DB2Password"]]]></Password><Conductor collapsed=\\'1\\' type=\\'bool\\'><![CDATA[0]]></Conductor><UseDirectConnections type=\\'bool\\'><![CDATA[0]]></UseDirectConnections><KeepConductorConnectionAlive type=\\'bool\\'><![CDATA[1]]></KeepConductorConnectionAlive></Connection><Usage><MigratedJob type=\\'bool\\'><![CDATA[0]]></MigratedJob><GenerateSQL type=\\'bool\\'><![CDATA[0]]></GenerateSQL><EnableQuotedIDs type=\\'bool\\'><![CDATA[0]]></EnableQuotedIDs><XMLColumnAsLOB type=\\'bool\\'><![CDATA[0]]></XMLColumnAsLOB><PrefixForExpressionColumns type=\\'string\\'><![CDATA[EXPR]]></PrefixForExpressionColumns><SQL><SelectStatement modified=\\'1\\' type=\\'string\\'><![CDATA[SELECT PROVR_ID, MAX(ELIGIBLE_TO) AS MAX_ELGT
+ FROM (
+ SELECT distinct PROVR_ID, ELIGIBLE_FROM, ELIGIBLE_TO
+ FROM [&"PsetNeDmaConnection.$DB2SchemaNameIds"].T_PROVR_ELGT 
+ WHERE EFFV_END_DATE = \\'9999-12-31\\'  AND FILE_TYPE = \\'[&"FILE_TYPE"]\\' )
+ GROUP BY PROVR_ID]]><ReadFromFileSelect type=\\'bool\\'><![CDATA[0]]></ReadFromFileSelect><Tables collapsed=\\'1\\'></Tables><Parameters collapsed=\\'1\\'></Parameters><Columns collapsed=\\'1\\'></Columns></SelectStatement><EnablePartitioning collapsed=\\'1\\' type=\\'bool\\'><![CDATA[0]]></EnablePartitioning></SQL><Transaction><RecordCount type=\\'int\\'><![CDATA[2000]]></RecordCount><EndOfWave collapsed=\\'1\\' type=\\'int\\'><![CDATA[0]]></EndOfWave></Transaction><Session><IsolationLevel type=\\'int\\'><![CDATA[1]]></IsolationLevel><AutocommitMode type=\\'int\\'><![CDATA[0]]></AutocommitMode><ArraySize type=\\'int\\'><![CDATA[2000]]></ArraySize><SchemaReconciliation><FailOnSizeMismatch type=\\'bool\\'><![CDATA[1]]></FailOnSizeMismatch><FailOnTypeMismatch type=\\'bool\\'><![CDATA[1]]></FailOnTypeMismatch><FailOnCodePageMismatch type=\\'bool\\'><![CDATA[0]]></FailOnCodePageMismatch></SchemaReconciliation><PassLobLocator collapsed=\\'1\\' type=\\'bool\\'><![CDATA[0]]></PassLobLocator></Session><BeforeAfter collapsed=\\'1\\' type=\\'bool\\'><![CDATA[0]]></BeforeAfter><ReOptimization type=\\'int\\'><![CDATA[2]]></ReOptimization><LockWaitMode collapsed=\\'1\\' type=\\'int\\'><![CDATA[1]]></LockWaitMode><LimitRows collapsed=\\'1\\' type=\\'bool\\'><![CDATA[0]]></LimitRows></Usage></Properties >'
+-connector '{
+   variant=\\'9.1\\', 
+   library=ccdb2, 
+   version=1.0, 
+   variantlist=\\'V1;9.1::ccdb2\\', 
+   versionlist=\\'1.0\\', 
+   name=DB2Connector
+}'
+-source 0 '{
+      DSDescription={PROVR_ID=\\'\\<none\\>\\', MAX_ELGT=\\'\\<none\\>\\'}, 
+      DSDisplayWidth={PROVR_ID=20, MAX_ELGT=10}, 
+      DSSQLType={PROVR_ID=12, MAX_ELGT=9}, 
+      DSSQLPrecision={PROVR_ID=50, MAX_ELGT=10}, 
+      DSSchema=\\'record
+         (
+           PROVR_ID\\:string\\[max\\=50\\]\\;
+           MAX_ELGT\\:nullable date\\;
+         )\\'
+}'
+   
+
+## General options
+[ident('Db_Provr_MaxElgt'); jobmon_ident('Db_Provr_MaxElgt')]
+## Outputs
+0> [modify (
+  PROVR_ID:not_nullable string[max=50]=PROVR_ID;
+  MAX_ELGT:nullable date=MAX_ELGT;
+keep
+  PROVR_ID,MAX_ELGT;
+)] 'Db_Provr_MaxElgt:Lnk_In_MaxElgt.v'
+;
+
+#################################################################
+#### STAGE: LkUp_Dt
+## Operator
+lookup
+## Operator options
+-table
+-key PROVR_ID
+-key ELIGIBLE_FROM
+-keep
+-transfer_adapter 'transfer* renames ELIGIBLE_FROM as ELIGIBLE_FROM_ORIG; transfer* excludes ELIGIBLE_TO'
+-ifNotFound continue
+
+## General options
+[ident('LkUp_Dt'); jobmon_ident('LkUp_Dt')]
+## Inputs
+0< [] 'Jn_Date:Lnk_In_LkUp.v'
+1< [] 'Db_Ref_FromDt:Lnk_In_ProvrFrom_Dt.v'
+## Outputs
+0> [modify (
+keep
+  PROVR_ID,ELIGIBLE_FROM,ELIGIBLE_TO,MAX_ELGT,
+  ELIGIBLE_FROM_ORIG;)] 'LkUp_Dt:Lnk_Out_Frm.v'
+;
+
+#################################################################
+#### STAGE: Db_Ref_FromDt
+## Operator
+pxbridge
+## Operator options
+-Orientation link
+-XMLProperties '<?xml version=\\'1.0\\' encoding=\\'UTF-16\\'?><Properties version=\\'1.1\\'><Common><Context type=\\'int\\'>1</Context><Variant type=\\'string\\'>9.1</Variant><DescriptorVersion type=\\'string\\'>1.0</DescriptorVersion><PartitionType type=\\'int\\'>-1</PartitionType><RCP type=\\'int\\'>0</RCP></Common><Connection><Instance modified=\\'1\\' type=\\'string\\'><![CDATA[[&"PsetNeDmaConnection.$DB2Instance"]]]></Instance><Database modified=\\'1\\' type=\\'string\\'><![CDATA[[&"PsetNeDmaConnection.$DB2Name"]]]></Database><Username modified=\\'1\\' type=\\'string\\'><![CDATA[[&"PsetNeDmaConnection.$DB2UserName"]]]></Username><Password modified=\\'1\\' type=\\'string\\'><![CDATA[[&"PsetNeDmaConnection.$DB2Password"]]]></Password><Conductor collapsed=\\'1\\' type=\\'bool\\'><![CDATA[0]]></Conductor><UseDirectConnections type=\\'bool\\'><![CDATA[0]]></UseDirectConnections><KeepConductorConnectionAlive type=\\'bool\\'><![CDATA[1]]></KeepConductorConnectionAlive></Connection><Usage><MigratedJob type=\\'bool\\'><![CDATA[0]]></MigratedJob><GenerateSQL type=\\'bool\\'><![CDATA[0]]></GenerateSQL><EnableQuotedIDs type=\\'bool\\'><![CDATA[0]]></EnableQuotedIDs><XMLColumnAsLOB type=\\'bool\\'><![CDATA[0]]></XMLColumnAsLOB><PrefixForExpressionColumns type=\\'string\\'><![CDATA[EXPR]]></PrefixForExpressionColumns><SQL><SelectStatement modified=\\'1\\' type=\\'string\\'><![CDATA[ SELECT distinct PROVR_ID, ELIGIBLE_FROM,ELIGIBLE_TO FROM (
+ SELECT  distinct PROVR_ID, ELIGIBLE_FROM,ELIGIBLE_TO
+ FROM (
+ SELECT distinct PROVR_ID, ELIGIBLE_FROM, ELIGIBLE_TO
+ FROM [&"PsetNeDmaConnection.$DB2SchemaNameIds"].T_PROVR_ELGT 
+ WHERE EFFV_END_DATE = \\'9999-12-31\\'  AND FILE_TYPE = \\'[&"FILE_TYPE"]\\'
+ 
+ Union All 
+ SELECT distinct PROVR_ID, PROVR_TAXONOMY_CLS_EFFV_DT AS ELIGIBLE_FROM, PROVR_TAXONOMY_CLS_END_DT AS ELIGIBLE_TO
+ FROM [&"PsetNeDmaConnection.$DB2SchemaNameIds"].T_PROVR_TAXONOMY_CLASS 
+ WHERE EFFV_END_DATE = \\'9999-12-31\\'  AND FILE_TYPE = \\'[&"FILE_TYPE"]\\'
+
+ Union All 
+ SELECT distinct PROVR_ID, PROVR_ENRL_EFFV_DT AS ELIGIBLE_FROM, PROVR_ENRL_END_DT AS ELIGIBLE_TO
+ FROM [&"PsetNeDmaConnection.$DB2SchemaNameIds"].T_PROVR_ENROLLMENT
+ WHERE EFFV_END_DATE = \\'9999-12-31\\' AND FILE_TYPE = \\'[&"FILE_TYPE"]\\'
+ 
+ Union All
+ SELECT distinct GRP_MBR_PROVR_ID AS PROVR_ID,BEGIN_EFFV_DT AS ELIGIBLE_FROM,END_EFFV_DT AS ELIGIBLE_TO 
+ FROM [&"PsetNeDmaConnection.$DB2SchemaNameIds"].T_GROUP_PROVR
+ )
+ Union All
+ SELECT distinct PROVR_ID, ELIGIBLE_FROM,ELIGIBLE_TO
+ FROM (
+ SELECT distinct PROVR_ID, ELIGIBLE_FROM, ELIGIBLE_TO
+ FROM [&"PsetNeDmaConnection.$DB2SchemaNameIds"].T_PROVR_ELGT 
+ WHERE EFFV_END_DATE = \\'9999-12-31\\' AND FILE_TYPE = \\'[&"FILE_TYPE"]\\'
+ 
+ Union All 
+ SELECT distinct PROVR_ID, PROVR_TAXONOMY_CLS_EFFV_DT AS ELIGIBLE_FROM, PROVR_TAXONOMY_CLS_END_DT AS ELIGIBLE_TO
+ FROM [&"PsetNeDmaConnection.$DB2SchemaNameIds"].T_PROVR_TAXONOMY_CLASS 
+ WHERE EFFV_END_DATE = \\'9999-12-31\\' AND FILE_TYPE = \\'[&"FILE_TYPE"]\\'
+ Union All 
+ 
+ SELECT distinct PROVR_ID, PROVR_ENRL_EFFV_DT AS ELIGIBLE_FROM, PROVR_ENRL_END_DT AS ELIGIBLE_TO
+ FROM [&"PsetNeDmaConnection.$DB2SchemaNameIds"].T_PROVR_ENROLLMENT
+ WHERE EFFV_END_DATE = \\'9999-12-31\\' AND FILE_TYPE = \\'[&"FILE_TYPE"]\\'
+ 
+ Union All
+ SELECT distinct GRP_MBR_PROVR_ID AS PROVR_ID,BEGIN_EFFV_DT AS ELIGIBLE_FROM,END_EFFV_DT AS ELIGIBLE_TO 
+ FROM [&"PsetNeDmaConnection.$DB2SchemaNameIds"].T_GROUP_PROVR
+ )
+ );]]><ReadFromFileSelect type=\\'bool\\'><![CDATA[0]]></ReadFromFileSelect><Tables collapsed=\\'1\\'></Tables><Parameters collapsed=\\'1\\'></Parameters><Columns collapsed=\\'1\\'></Columns></SelectStatement><EnablePartitioning collapsed=\\'1\\' type=\\'bool\\'><![CDATA[0]]></EnablePartitioning></SQL><Transaction><RecordCount type=\\'int\\'><![CDATA[2000]]></RecordCount><EndOfWave collapsed=\\'1\\' type=\\'int\\'><![CDATA[0]]></EndOfWave></Transaction><Session><IsolationLevel type=\\'int\\'><![CDATA[1]]></IsolationLevel><AutocommitMode type=\\'int\\'><![CDATA[0]]></AutocommitMode><ArraySize type=\\'int\\'><![CDATA[2000]]></ArraySize><SchemaReconciliation><FailOnSizeMismatch type=\\'bool\\'><![CDATA[1]]></FailOnSizeMismatch><FailOnTypeMismatch type=\\'bool\\'><![CDATA[1]]></FailOnTypeMismatch><FailOnCodePageMismatch type=\\'bool\\'><![CDATA[0]]></FailOnCodePageMismatch></SchemaReconciliation><PassLobLocator collapsed=\\'1\\' type=\\'bool\\'><![CDATA[0]]></PassLobLocator></Session><BeforeAfter collapsed=\\'1\\' type=\\'bool\\'><![CDATA[0]]></BeforeAfter><ReOptimization type=\\'int\\'><![CDATA[2]]></ReOptimization><LockWaitMode collapsed=\\'1\\' type=\\'int\\'><![CDATA[1]]></LockWaitMode><LimitRows collapsed=\\'1\\' type=\\'bool\\'><![CDATA[0]]></LimitRows></Usage></Properties >'
+-connector '{
+   variant=\\'9.1\\', 
+   library=ccdb2, 
+   version=1.0, 
+   variantlist=\\'V1;9.1::ccdb2\\', 
+   versionlist=\\'1.0\\', 
+   name=DB2Connector
+}'
+-source 0 '{
+      DSDescription={PROVR_ID=\\'\\<none\\>\\', ELIGIBLE_FROM=\\'\\<none\\>\\'}, 
+      DSIsKey={PROVR_ID=1, ELIGIBLE_FROM=1}, 
+      DSDisplayWidth={PROVR_ID=20, ELIGIBLE_FROM=10}, 
+      DSSQLType={PROVR_ID=12, ELIGIBLE_FROM=9, ELIGIBLE_TO=9}, 
+      DSSQLPrecision={PROVR_ID=50, ELIGIBLE_FROM=10, ELIGIBLE_TO=10}, 
+      DSSchema=\\'record
+         (
+           PROVR_ID\\:string\\[max\\=50\\]\\;
+           ELIGIBLE_FROM\\:nullable date\\;
+           ELIGIBLE_TO\\:nullable date\\;
+         )\\'
+}'
+   
+
+## General options
+[ident('Db_Ref_FromDt'); jobmon_ident('Db_Ref_FromDt')]
+## Outputs
+0> [modify (
+  PROVR_ID:not_nullable string[max=50]=PROVR_ID;
+  ELIGIBLE_FROM:nullable date=ELIGIBLE_FROM;
+  ELIGIBLE_TO:nullable date=ELIGIBLE_TO;
+keep
+  PROVR_ID,ELIGIBLE_FROM,ELIGIBLE_TO;
+)] 'Db_Ref_FromDt:Lnk_In_ProvrFrom_Dt.v'
+;
+
+#################################################################
+#### STAGE: Ftr_Dt
+## Operator
+filter
+## Operator options
+-where 'ELIGIBLE_FROM < ELIGIBLE_TO'
+
+## General options
+[ident('Ftr_Dt'); jobmon_ident('Ftr_Dt')]
+## Inputs
+0< [] 'RemDup_Dt:Lnk_Out_RemDup.v'
+## Outputs
+0> [modify (
+keep
+  PROVR_ID,ELIGIBLE_FROM,ELIGIBLE_TO;
+)] 'Ftr_Dt:Lnk_Tgt_Itm_Mtx.v'
+;
+
+#################################################################
+#### STAGE: LkUp_To_Dt
+## Operator
+lookup
+## Operator options
+-table
+-key PROVR_ID
+-key ELIGIBLE_TO
+-keep
+-transfer_adapter 'transfer* renames ELIGIBLE_TO as ELIGIBLE_TO_ORIG; transfer* excludes ELIGIBLE_FROM'
+-ifNotFound continue
+
+## General options
+[ident('LkUp_To_Dt'); jobmon_ident('LkUp_To_Dt')]
+## Inputs
+0< [] 'LkUp_Dt:Lnk_Out_Frm.v'
+1< [] 'Db_Ref_ToDt:Lnk_In_ProvrTo_Dt.v'
+## Outputs
+0> [modify (
+keep
+  PROVR_ID,ELIGIBLE_FROM,ELIGIBLE_TO,MAX_ELGT,
+  ELIGIBLE_FROM_ORIG,ELIGIBLE_TO_ORIG;)] 'LkUp_To_Dt:Lnk_In_Tfm.v'
+;
+
+#################################################################
+#### STAGE: Db_Ref_ToDt
+## Operator
+pxbridge
+## Operator options
+-Orientation link
+-XMLProperties '<?xml version=\\'1.0\\' encoding=\\'UTF-16\\'?><Properties version=\\'1.1\\'><Common><Context type=\\'int\\'>1</Context><Variant type=\\'string\\'>9.1</Variant><DescriptorVersion type=\\'string\\'>1.0</DescriptorVersion><PartitionType type=\\'int\\'>-1</PartitionType><RCP type=\\'int\\'>0</RCP></Common><Connection><Instance modified=\\'1\\' type=\\'string\\'><![CDATA[[&"PsetNeDmaConnection.$DB2Instance"]]]></Instance><Database modified=\\'1\\' type=\\'string\\'><![CDATA[[&"PsetNeDmaConnection.$DB2Name"]]]></Database><Username modified=\\'1\\' type=\\'string\\'><![CDATA[[&"PsetNeDmaConnection.$DB2UserName"]]]></Username><Password modified=\\'1\\' type=\\'string\\'><![CDATA[[&"PsetNeDmaConnection.$DB2Password"]]]></Password><Conductor collapsed=\\'1\\' type=\\'bool\\'><![CDATA[0]]></Conductor><UseDirectConnections type=\\'bool\\'><![CDATA[0]]></UseDirectConnections><KeepConductorConnectionAlive type=\\'bool\\'><![CDATA[1]]></KeepConductorConnectionAlive></Connection><Usage><MigratedJob type=\\'bool\\'><![CDATA[0]]></MigratedJob><GenerateSQL type=\\'bool\\'><![CDATA[0]]></GenerateSQL><EnableQuotedIDs type=\\'bool\\'><![CDATA[0]]></EnableQuotedIDs><XMLColumnAsLOB type=\\'bool\\'><![CDATA[0]]></XMLColumnAsLOB><PrefixForExpressionColumns type=\\'string\\'><![CDATA[EXPR]]></PrefixForExpressionColumns><SQL><SelectStatement modified=\\'1\\' type=\\'string\\'><![CDATA[SELECT distinct PROVR_ID, ELIGIBLE_FROM,ELIGIBLE_TO FROM (
+ SELECT  distinct PROVR_ID, ELIGIBLE_FROM,ELIGIBLE_TO
+ FROM (
+ SELECT distinct PROVR_ID, ELIGIBLE_FROM, ELIGIBLE_TO
+ FROM [&"PsetNeDmaConnection.$DB2SchemaNameIds"].T_PROVR_ELGT 
+ WHERE EFFV_END_DATE = \\'9999-12-31\\' AND FILE_TYPE = \\'[&"FILE_TYPE"]\\'
+ 
+ Union All 
+ SELECT distinct PROVR_ID, PROVR_TAXONOMY_CLS_EFFV_DT AS ELIGIBLE_FROM, PROVR_TAXONOMY_CLS_END_DT AS ELIGIBLE_TO
+ FROM [&"PsetNeDmaConnection.$DB2SchemaNameIds"].T_PROVR_TAXONOMY_CLASS 
+ WHERE EFFV_END_DATE = \\'9999-12-31\\' AND FILE_TYPE = \\'[&"FILE_TYPE"]\\'
+
+ Union All 
+ SELECT distinct PROVR_ID, PROVR_ENRL_EFFV_DT AS ELIGIBLE_FROM, PROVR_ENRL_END_DT AS ELIGIBLE_TO
+ FROM [&"PsetNeDmaConnection.$DB2SchemaNameIds"].T_PROVR_ENROLLMENT
+ WHERE EFFV_END_DATE = \\'9999-12-31\\' AND FILE_TYPE = \\'[&"FILE_TYPE"]\\'
+ 
+ Union All
+ SELECT distinct GRP_MBR_PROVR_ID AS PROVR_ID,BEGIN_EFFV_DT AS ELIGIBLE_FROM,END_EFFV_DT AS ELIGIBLE_TO 
+ FROM [&"PsetNeDmaConnection.$DB2SchemaNameIds"].T_GROUP_PROVR
+ )
+ Union All
+ SELECT distinct PROVR_ID, ELIGIBLE_FROM,ELIGIBLE_TO
+ FROM (
+ SELECT distinct PROVR_ID, ELIGIBLE_FROM, ELIGIBLE_TO
+ FROM [&"PsetNeDmaConnection.$DB2SchemaNameIds"].T_PROVR_ELGT 
+ WHERE EFFV_END_DATE = \\'9999-12-31\\'  AND FILE_TYPE = \\'[&"FILE_TYPE"]\\'
+ 
+ Union All 
+ SELECT distinct PROVR_ID, PROVR_TAXONOMY_CLS_EFFV_DT AS ELIGIBLE_FROM, PROVR_TAXONOMY_CLS_END_DT AS ELIGIBLE_TO
+ FROM [&"PsetNeDmaConnection.$DB2SchemaNameIds"].T_PROVR_TAXONOMY_CLASS 
+ WHERE EFFV_END_DATE = \\'9999-12-31\\' AND FILE_TYPE = \\'[&"FILE_TYPE"]\\'
+
+ Union All 
+ SELECT distinct PROVR_ID, PROVR_ENRL_EFFV_DT AS ELIGIBLE_FROM, PROVR_ENRL_END_DT AS ELIGIBLE_TO
+ FROM [&"PsetNeDmaConnection.$DB2SchemaNameIds"].T_PROVR_ENROLLMENT
+ WHERE EFFV_END_DATE = \\'9999-12-31\\' AND FILE_TYPE = \\'[&"FILE_TYPE"]\\'
+ 
+ Union All
+ SELECT distinct GRP_MBR_PROVR_ID AS PROVR_ID,BEGIN_EFFV_DT AS ELIGIBLE_FROM,END_EFFV_DT AS ELIGIBLE_TO 
+ FROM [&"PsetNeDmaConnection.$DB2SchemaNameIds"].T_GROUP_PROVR
+ )
+ ); ]]><ReadFromFileSelect type=\\'bool\\'><![CDATA[0]]></ReadFromFileSelect><Tables collapsed=\\'1\\'></Tables><Parameters collapsed=\\'1\\'></Parameters><Columns collapsed=\\'1\\'></Columns></SelectStatement><EnablePartitioning collapsed=\\'1\\' type=\\'bool\\'><![CDATA[0]]></EnablePartitioning></SQL><Transaction><RecordCount type=\\'int\\'><![CDATA[2000]]></RecordCount><EndOfWave collapsed=\\'1\\' type=\\'int\\'><![CDATA[0]]></EndOfWave></Transaction><Session><IsolationLevel type=\\'int\\'><![CDATA[1]]></IsolationLevel><AutocommitMode type=\\'int\\'><![CDATA[0]]></AutocommitMode><ArraySize type=\\'int\\'><![CDATA[2000]]></ArraySize><SchemaReconciliation><FailOnSizeMismatch type=\\'bool\\'><![CDATA[1]]></FailOnSizeMismatch><FailOnTypeMismatch type=\\'bool\\'><![CDATA[1]]></FailOnTypeMismatch><FailOnCodePageMismatch type=\\'bool\\'><![CDATA[0]]></FailOnCodePageMismatch></SchemaReconciliation><PassLobLocator collapsed=\\'1\\' type=\\'bool\\'><![CDATA[0]]></PassLobLocator></Session><BeforeAfter collapsed=\\'1\\' type=\\'bool\\'><![CDATA[0]]></BeforeAfter><ReOptimization type=\\'int\\'><![CDATA[2]]></ReOptimization><LockWaitMode collapsed=\\'1\\' type=\\'int\\'><![CDATA[1]]></LockWaitMode><LimitRows collapsed=\\'1\\' type=\\'bool\\'><![CDATA[0]]></LimitRows></Usage></Properties >'
+-connector '{
+   variant=\\'9.1\\', 
+   library=ccdb2, 
+   version=1.0, 
+   variantlist=\\'V1;9.1::ccdb2\\', 
+   versionlist=\\'1.0\\', 
+   name=DB2Connector
+}'
+-source 0 '{
+      DSDescription={PROVR_ID=\\'\\<none\\>\\', ELIGIBLE_FROM=\\'\\<none\\>\\'}, 
+      DSIsKey={PROVR_ID=1, ELIGIBLE_TO=1}, 
+      DSDisplayWidth={PROVR_ID=20, ELIGIBLE_FROM=10}, 
+      DSSQLType={PROVR_ID=12, ELIGIBLE_FROM=9, ELIGIBLE_TO=9}, 
+      DSSQLPrecision={PROVR_ID=50, ELIGIBLE_FROM=10, ELIGIBLE_TO=10}, 
+      DSSchema=\\'record
+         (
+           PROVR_ID\\:string\\[max\\=50\\]\\;
+           ELIGIBLE_FROM\\:nullable date\\;
+           ELIGIBLE_TO\\:nullable date\\;
+         )\\'
+}'
+   
+
+## General options
+[ident('Db_Ref_ToDt'); jobmon_ident('Db_Ref_ToDt')]
+## Outputs
+0> [modify (
+  PROVR_ID:not_nullable string[max=50]=PROVR_ID;
+  ELIGIBLE_FROM:nullable date=ELIGIBLE_FROM;
+  ELIGIBLE_TO:nullable date=ELIGIBLE_TO;
+keep
+  PROVR_ID,ELIGIBLE_FROM,ELIGIBLE_TO;
+)] 'Db_Ref_ToDt:Lnk_In_ProvrTo_Dt.v'
+;
+
+
+=+=+=+=
+      IsTemplate "0"
+      NLSLocale ",,,,"
+      JobType "3"
+      Category "\\NE DMA ADS\\PROVIDER"
+      CenturyBreakYear "30"
+      NextAliasID "2"
+      ParameterFileDDName "DD00001"
+      ReservedWordCheck "1"
+      TransactionSize "0"
+      ValidationStatus "0"
+      Uploadable "0"
+      PgmCustomizationFlag "0"
+      JobReportFlag "0"
+      AllowMultipleInvocations "0"
+      Act2ActOverideDefaults "0"
+      Act2ActEnableRowBuffer "0"
+      Act2ActUseIPC "0"
+      Act2ActBufferSize "0"
+      Act2ActIPCTimeout "0"
+      ExpressionSemanticCheckFlag "0"
+      TraceOption "0"
+      EnableCacheSharing "0"
+      RuntimeColumnPropagation "0"
+      RelStagesInJobStatus "-1"
+      WebServiceEnabled "0"
+      MFProcessMetaData "0"
+      MFProcessMetaDataXMLFileExchangeMethod "0"
+      IMSProgType "0"
+      CopyLibPrefix "ARDT"
+      RecordPerformanceResults "0"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0"
+      OLEType "CContainerView"
+      Readonly "0"
+      Name "Job"
+      NextID "1"
+      IsTopLevel "0"
+      StageList "V5S0|V0S55|V0S57|V0S59|V0S63|V9S0|V0S69|V10S0|V0S73|V0S82|V11S0"
+      StageXPos "96|720|1320|912|264|96|456|456|1104|600|600"
+      StageYPos "192|288|288|288|288|360|288|96|288|408|624"
+      StageTypes "CCustomStage.CC_GUI|CTransformerStage|CCustomStage.CC_GUI|CCustomStage|CCustomStage|CCustomStage.CC_GUI|CCustomStage|CCustomStage.CC_GUI|CCustomStage|CCustomStage|CCustomStage.CC_GUI"
+      NextStageID "89"
+      SnapToGrid "1"
+      GridLines "0"
+      ZoomValue "100"
+      StageXSize "48|48|48|48|48|48|48|48|48|48|48"
+      StageYSize "48|48|48|48|48|48|48|48|48|48|48"
+      ContainerViewSizing "0156 0156 1125 0504 0000 0001 0000 0055"
+      StageNames "Db_Provr_Tx|Tfm_Date|Db_Provr_Dt_Matrix|RemDup_Dt|Jn_Date|Db_Provr_MaxElgt|LkUp_Dt|Db_Ref_FromDt|Ftr_Dt|LkUp_To_Dt|Db_Ref_ToDt"
+      StageTypeIDs "DB2ConnectorPX|CTransformerStage|DB2ConnectorPX|PxRemDup|PxJoin|DB2ConnectorPX|PxLookup|DB2ConnectorPX|PxFilter|PxLookup|DB2ConnectorPX"
+      LinkNames "Lnk_In_Provr|Lnk_Out| |Lnk_Out_RemDup|Lnk_In_LkUp|Lnk_In_MaxElgt|Lnk_Out_Frm|Lnk_In_ProvrFrom_Dt|Lnk_Tgt_Itm_Mtx|Lnk_In_Tfm|Lnk_In_ProvrTo_Dt"
+      LinkHasMetaDatas "True|True| |True|True|True|True|True|True|True|True"
+      LinkTypes "1|1| |1|1|1|1|2|1|1|2"
+      LinkNamePositionXs "205|810| |996|352|186|480|480|1212|676|538"
+      LinkNamePositionYs "241|314| |320|319|369|369|191|319|372|514"
+      TargetStageIDs "V0S63|V0S59| |V0S73|V0S69|V0S63|V0S82|V0S69|V0S57|V0S55|V0S82"
+      SourceStageEffectiveExecutionModes "2|2| |2|2|2|2|2|2|2|2"
+      SourceStageRuntimeExecutionModes "2|2| |2|2|2|2|2|2|2|2"
+      TargetStageEffectiveExecutionModes "2|2| |2|2|2|2|2|2|2|2"
+      TargetStageRuntimeExecutionModes "2|2| |2|2|2|2|2|2|2|2"
+      LinkIsSingleOperatorLookup "False|False| |False|False|False|False|False|False|False|False"
+      LinkIsSortSequential "False|False| |False|False|False|False|False|False|False|False"
+      LinkSortMode "1|1| |0|0|1|0|0|0|0|0"
+      LinkPartColMode "3|3| |1|1|3|1|1|1|1|1"
+      LinkSourcePinIDs "V5S0P1|V0S55P1| |V0S59P2|V0S63P3|V9S0P1|V0S69P2|V10S0P1|V0S73P2|V0S82P3|V11S0P1"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S55"
+      OLEType "CTransformerStage"
+      Readonly "0"
+      Name "Tfm_Date"
+      NextID "8"
+      InputPins "V0S55P6"
+      OutputPins "V0S55P1"
+      MetaBag "CMetaProperty"
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "TrxGenCode"
+         Value =+=+=+=
+//
+// Generated file to implement the V0S55_J_1_DATE_PREP_Tfm_Date transform operator.
+//
+
+// define our input/output link names
+inputname 0 Lnk_In_Tfm;
+outputname 0 Lnk_Out;
+
+initialize {
+ // define our control variables
+ int8 RowRejected0;
+ int8 NullSetVar0;
+
+ // declare our intermediate variables for this section (1)
+ date InterVar0_0;
+
+ // initialise constant values which require conversion
+ InterVar0_0 = date_from_ustring("9999-12-31");
+}
+
+mainloop {
+
+ // initialise the rejected row variable
+ RowRejected0 = 1;
+
+ // evaluate columns (no constraints) for link: Lnk_Out
+ if ((null(Lnk_In_Tfm.ELIGIBLE_FROM_ORIG) && (Lnk_In_Tfm.ELIGIBLE_FROM != InterVar0_0))) {
+  Lnk_Out.ELIGIBLE_FROM = date_offset_by_components(Lnk_In_Tfm.ELIGIBLE_FROM , 0 , 0 , 1);
+ } else {
+  Lnk_Out.ELIGIBLE_FROM = Lnk_In_Tfm.ELIGIBLE_FROM;
+ }
+ //;
+ if (null(Lnk_In_Tfm.ELIGIBLE_TO)) {
+  Lnk_Out.ELIGIBLE_TO = Lnk_In_Tfm.MAX_ELGT;
+ } else {
+  if (null(Lnk_In_Tfm.ELIGIBLE_TO_ORIG)) {
+   Lnk_Out.ELIGIBLE_TO = date_offset_by_days(Lnk_In_Tfm.ELIGIBLE_TO , -1);
+  } else {
+   if ((notnull(Lnk_In_Tfm.ELIGIBLE_TO_ORIG) || (Lnk_In_Tfm.ELIGIBLE_TO == Lnk_In_Tfm.MAX_ELGT))) {
+    Lnk_Out.ELIGIBLE_TO = Lnk_In_Tfm.ELIGIBLE_TO;
+   } else {
+    Lnk_Out.ELIGIBLE_TO = date_offset_by_days(Lnk_In_Tfm.ELIGIBLE_TO , -1);
+   }
+   //;
+  }
+  //;
+ }
+ //;
+ writerecord 0;
+ RowRejected0 = 0;
+}
+
+finish {
+}
+
+=+=+=+=
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "TrxGenCache"
+         Value "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "TrxClassName"
+         Value "V0S55_J_1_DATE_PREP_Tfm_Date"
+      END DSSUBRECORD
+      ValidationStatus "0"
+      StageType "CTransformerStage"
+      BlockSize "0"
+      StageVarsMinimised "0"
+      LoopVarsMaximised "0"
+      MaxLoopIterations "0"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S55P1"
+      OLEType "CTrxOutput"
+      Readonly "0"
+      Name "Lnk_Out"
+      Partner "V0S59|V0S59P1"
+      Reject "0"
+      ErrorPin "0"
+      RowLimit "0"
+      Columns "COutputColumn"
+      BEGIN DSSUBRECORD
+         Name "PROVR_ID"
+         Description "<none>"
+         SqlType "12"
+         Precision "50"
+         Scale "0"
+         Nullable "0"
+         KeyPosition "0"
+         DisplaySize "20"
+         Derivation "Lnk_In_Tfm.PROVR_ID"
+         Group "0"
+         ParsedDerivation "Lnk_In_Tfm.PROVR_ID"
+         SourceColumn "Lnk_In_Tfm.PROVR_ID"
+         SortKey "0"
+         SortType "0"
+         TableDef "Saved\\Lnk_Src_Ds\\DS_MBR"
+         AllowCRLF "0"
+         LevelNo "0"
+         Occurs "0"
+         PadNulls "0"
+         SignOption "0"
+         SortingOrder "0"
+         ArrayHandling "0"
+         SyncIndicator "0"
+         PadChar ""
+         ColumnReference "MBR_ID"
+         ExtendedPrecision "0"
+         TaggedSubrec "0"
+         OccursVarying "0"
+         PKeyIsCaseless "0"
+         SCDPurpose "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ELIGIBLE_FROM"
+         Description "<none>"
+         SqlType "9"
+         Precision "10"
+         Scale "0"
+         Nullable "1"
+         KeyPosition "0"
+         DisplaySize "10"
+         Derivation " If  IsNull(Lnk_In_Tfm.ELIGIBLE_FROM_ORIG) And Lnk_In_Tfm.ELIGIBLE_FROM <> '9999-12-31' Then DateOffsetByComponents(Lnk_In_Tfm.ELIGIBLE_FROM,0,0,1) Else Lnk_In_Tfm.ELIGIBLE_FROM"
+         Group "0"
+         ParsedDerivation " If IsNull(Lnk_In_Tfm.ELIGIBLE_FROM_ORIG) And Lnk_In_Tfm.ELIGIBLE_FROM <> '9999-12-31' Then DateOffsetByComponents(Lnk_In_Tfm.ELIGIBLE_FROM, 0, 0, 1) Else Lnk_In_Tfm.ELIGIBLE_FROM"
+         SourceColumn "Lnk_In_Tfm.ELIGIBLE_FROM_ORIG;Lnk_In_Tfm.ELIGIBLE_FROM"
+         SortKey "0"
+         SortType "0"
+         TableDef "Saved\\Lnk_Src_Ds\\DS_MBR"
+         AllowCRLF "0"
+         LevelNo "0"
+         Occurs "0"
+         PadNulls "0"
+         SignOption "0"
+         SortingOrder "0"
+         ArrayHandling "0"
+         SyncIndicator "0"
+         PadChar ""
+         ColumnReference "MBR_EFFV_DT"
+         ExtendedPrecision "0"
+         TaggedSubrec "0"
+         OccursVarying "0"
+         PKeyIsCaseless "0"
+         SCDPurpose "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ELIGIBLE_TO"
+         SqlType "9"
+         Precision "10"
+         Scale "0"
+         Nullable "1"
+         KeyPosition "0"
+         DisplaySize "0"
+         Derivation =+=+=+=
+If IsNull(Lnk_In_Tfm.ELIGIBLE_TO) Then Lnk_In_Tfm.MAX_ELGT
+Else If IsNull(Lnk_In_Tfm.ELIGIBLE_TO_ORIG) Then DateOffsetByDays(Lnk_In_Tfm.ELIGIBLE_TO, -1)
+Else If IsNotNull(Lnk_In_Tfm.ELIGIBLE_TO_ORIG) Or Lnk_In_Tfm.ELIGIBLE_TO = Lnk_In_Tfm.MAX_ELGT Then Lnk_In_Tfm.ELIGIBLE_TO
+Else DateOffsetByDays(Lnk_In_Tfm.ELIGIBLE_TO, -1)
+=+=+=+=
+         Group "0"
+         ParsedDerivation " If IsNull(Lnk_In_Tfm.ELIGIBLE_TO) Then Lnk_In_Tfm.MAX_ELGT Else  If IsNull(Lnk_In_Tfm.ELIGIBLE_TO_ORIG) Then DateOffsetByDays(Lnk_In_Tfm.ELIGIBLE_TO, -1) Else  If IsNotNull(Lnk_In_Tfm.ELIGIBLE_TO_ORIG) Or Lnk_In_Tfm.ELIGIBLE_TO = Lnk_In_Tfm.MAX_ELGT Then Lnk_In_Tfm.ELIGIBLE_TO Else DateOffsetByDays(Lnk_In_Tfm.ELIGIBLE_TO, -1)"
+         SourceColumn "Lnk_In_Tfm.ELIGIBLE_TO;Lnk_In_Tfm.MAX_ELGT;Lnk_In_Tfm.ELIGIBLE_TO_ORIG"
+         SortKey "0"
+         SortType "0"
+         AllowCRLF "0"
+         LevelNo "0"
+         Occurs "0"
+         PadNulls "0"
+         SignOption "0"
+         SortingOrder "0"
+         ArrayHandling "0"
+         SyncIndicator "0"
+         PadChar ""
+         ExtendedPrecision "0"
+         TaggedSubrec "0"
+         OccursVarying "0"
+         PKeyIsCaseless "0"
+         SCDPurpose "0"
+      END DSSUBRECORD
+      MetaBag "CMetaProperty"
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "DiskWriteInc"
+         Value "1048576"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "BufFreeRun"
+         Value "50"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "MaxMemBufSize"
+         Value "3145728"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "QueueUpperSize"
+         Value "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "Schema"
+         Value =+=+=+=
+record
+(
+  PROVR_ID:string[max=50];
+  ELIGIBLE_FROM:nullable date;
+  ELIGIBLE_TO:nullable date;
+)
+=+=+=+=
+      END DSSUBRECORD
+      LeftTextPos "810"
+      TopTextPos "314"
+      LinkMinimised "0"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S55P6"
+      OLEType "CTrxInput"
+      Readonly "0"
+      Name "Lnk_In_Tfm"
+      Partner "V0S82|V0S82P3"
+      LinkType "1"
+      MetaBag "CMetaProperty"
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "RTColumnProp"
+         Value "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "Schema"
+         Value =+=+=+=
+record
+(
+  PROVR_ID:string[max=50];
+  ELIGIBLE_FROM:nullable date;
+  ELIGIBLE_TO:nullable date;
+  MAX_ELGT:nullable date;
+  ELIGIBLE_FROM_ORIG:nullable date;
+  ELIGIBLE_TO_ORIG:nullable date;
+)
+=+=+=+=
+      END DSSUBRECORD
+      MultiRow "0"
+      LinkMinimised "0"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S57"
+      OLEType "CCustomStage"
+      Readonly "0"
+      Name "Db_Provr_Dt_Matrix"
+      NextID "4"
+      InputPins "V0S57P3"
+      StageType "DB2ConnectorPX"
+      AllowColumnMapping "0"
+      Properties "CCustomProperty"
+      BEGIN DSSUBRECORD
+         Name "VariantName"
+         Value "9.1"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "VariantLibrary"
+         Value "ccdb2"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "VariantVersion"
+         Value "1.0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "SupportedVariants"
+         Value "V1;9.1::ccdb2"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "SupportedVariantsLibraries"
+         Value "ccdb2"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "SupportedVariantsVersions"
+         Value "1.0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "Orientation"
+         Value "link"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectFromLink"
+         Value "-1"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectThreshold"
+         Value "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectNumber"
+         Value "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectUsesPercentage"
+         Value "false"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConnectorName"
+         Value "DB2Connector"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "Engine"
+         Value "EE"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "Context"
+         Value "target"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConnectionString"
+         Value "/Connection/Database"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "Username"
+         Value "/Connection/Username"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "Password"
+         Value "/Connection/Password"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "Instance"
+         Value "/Connection/Instance"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "DB2ClientLibFile"
+         Value "/Connection/DB2ClientLibFile"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "Conductor"
+         Value "/Connection/Conductor"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConductorInstance"
+         Value "/Connection/Conductor/Instance"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConductorDatabase"
+         Value "/Connection/Conductor/Database"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConductorUsername"
+         Value "/Connection/Conductor/Username"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConductorPassword"
+         Value "/Connection/Conductor/Password"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConductorDB2ClientLibFile"
+         Value "/Connection/Conductor/DB2ClientLibFile"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "XMLProperties"
+         Value "<?xml version='1.0' encoding='UTF-16'?><Properties version='1.1'><Common><Context type='int'>2</Context><Variant type='string'>9.1</Variant><DescriptorVersion type='string'>1.0</DescriptorVersion><PartitionType type='int'>-1</PartitionType><RCP type='int'>0</RCP></Common><Connection><Instance modified='1' type='string'><![CDATA[#PsetNeDmaConnection.$DB2Instance#]]></Instance><Database modified='1' type='string'><![CDATA[#PsetNeDmaConnection.$DB2Name#]]></Database><Username modified='1' type='string'><![CDATA[#PsetNeDmaConnection.$DB2UserName#]]></Username><Password modified='1' type='string'><![CDATA[#PsetNeDmaConnection.$DB2Password#]]></Password><Conductor collapsed='1' type='bool'><![CDATA[0]]></Conductor><UseDirectConnections type='bool'><![CDATA[0]]></UseDirectConnections><KeepConductorConnectionAlive type='bool'><![CDATA[1]]></KeepConductorConnectionAlive></Connection><Usage><MigratedJob type='bool'><![CDATA[0]]></MigratedJob><WriteMode type='int'><![CDATA[0]]></WriteMode><GenerateSQL modified='1' type='bool'><![CDATA[1]]></GenerateSQL><TableName modified='1' type='string'><![CDATA[#PsetNeDmaConnection.$DB2SchemaNameIds#.T_PROVR_DATE_PREP]]></TableName><EnableQuotedIDs type='bool'><![CDATA[0]]></EnableQuotedIDs><XMLColumnAsLOB type='bool'><![CDATA[0]]></XMLColumnAsLOB><PrefixForExpressionColumns type='string'><![CDATA[EXPR]]></PrefixForExpressionColumns><SQL></SQL><TableAction modified='1' type='int'><![CDATA[3]]><GenerateTruncateStatement type='bool'><![CDATA[1]]><FailOnError type='bool'><![CDATA[1]]></FailOnError></GenerateTruncateStatement></TableAction><Transaction><RecordCount type='int'><![CDATA[2000]]></RecordCount></Transaction><Session><IsolationLevel type='int'><![CDATA[1]]></IsolationLevel><AutocommitMode type='int'><![CDATA[0]]></AutocommitMode><ArraySize type='int'><![CDATA[2000]]></ArraySize><SchemaReconciliation><FailOnSizeMismatch type='bool'><![CDATA[1]]></FailOnSizeMismatch><FailOnTypeMismatch type='bool'><![CDATA[1]]></FailOnTypeMismatch><FailOnCodePageMismatch type='bool'><![CDATA[0]]></FailOnCodePageMismatch><DropUnmatchedFields type='bool'><![CDATA[1]]></DropUnmatchedFields></SchemaReconciliation><FailOnRowErrorPX type='bool'><![CDATA[1]]></FailOnRowErrorPX><InsertBuffering type='int'><![CDATA[0]]><AtomicArrays type='int'><![CDATA[0]]></AtomicArrays></InsertBuffering></Session><Logging><LogColumnValues collapsed='1' type='bool'><![CDATA[0]]></LogColumnValues></Logging><BeforeAfter collapsed='1' type='bool'><![CDATA[0]]></BeforeAfter><ReOptimization type='int'><![CDATA[2]]></ReOptimization><LockWaitMode collapsed='1' type='int'><![CDATA[1]]></LockWaitMode></Usage></Properties >"
+      END DSSUBRECORD
+      NextRecordID "0"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S57P3"
+      OLEType "CCustomInput"
+      Readonly "0"
+      Name "Lnk_Tgt_Itm_Mtx"
+      Partner "V0S73|V0S73P2"
+      LinkType "1"
+      ConditionNotMet "fail"
+      LookupFail "fail"
+      Properties "CCustomProperty"
+      BEGIN DSSUBRECORD
+         Name "VariantName"
+         Value "9.1"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "VariantLibrary"
+         Value "ccdb2"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "VariantVersion"
+         Value "1.0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectFromLink"
+         Value "-1"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectThreshold"
+         Value "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectNumber"
+         Value "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectUsesPercentage"
+         Value "false"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConnectorName"
+         Value "DB2Connector"
+      END DSSUBRECORD
+      MetaBag "CMetaProperty"
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "RTColumnProp"
+         Value "0"
+      END DSSUBRECORD
+      TransactionSize "0"
+      TXNBehaviour "0"
+      EnableTxGroup "0"
+      LinkMinimised "0"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S59"
+      OLEType "CCustomStage"
+      Readonly "0"
+      Name "RemDup_Dt"
+      NextID "3"
+      InputPins "V0S59P1"
+      OutputPins "V0S59P2"
+      StageType "PxRemDup"
+      AllowColumnMapping "0"
+      Properties "CCustomProperty"
+      BEGIN DSSUBRECORD
+         Name "keep"
+         Value "first"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "key"
+         Value "\(2)\(2)0\(1)\(3)key\(2)PROVR_ID\(2)0\(1)\(3)key\(2)ELIGIBLE_FROM\(2)0\(1)\(3)key\(2)ELIGIBLE_TO\(2)0"
+      END DSSUBRECORD
+      NextRecordID "0"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S59P1"
+      OLEType "CCustomInput"
+      Readonly "0"
+      Name "Lnk_Out"
+      Partner "V0S55|V0S55P1"
+      LinkType "1"
+      ConditionNotMet "fail"
+      LookupFail "fail"
+      MetaBag "CMetaProperty"
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "RTColumnProp"
+         Value "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "Part/Col"
+         Value "hash -key PROVR_ID -cs -key ELIGIBLE_FROM -key ELIGIBLE_TO"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "Sort"
+         Value "tsort -key PROVR_ID -cs -asc -key ELIGIBLE_FROM -asc -nulls first -key ELIGIBLE_TO -asc -nulls first"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "SortAdv"
+         Value "-nonStable"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "_PartColSortColumns"
+         Value "PROVR_ID,ELIGIBLE_FROM,ELIGIBLE_TO"
+      END DSSUBRECORD
+      TransactionSize "0"
+      TXNBehaviour "0"
+      EnableTxGroup "0"
+      LinkMinimised "0"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S59P2"
+      OLEType "CCustomOutput"
+      Readonly "0"
+      Name "Lnk_Out_RemDup"
+      Partner "V0S73|V0S73P1"
+      Columns "COutputColumn"
+      BEGIN DSSUBRECORD
+         Name "PROVR_ID"
+         Description "<none>"
+         SqlType "12"
+         Precision "50"
+         Scale "0"
+         Nullable "0"
+         KeyPosition "0"
+         DisplaySize "20"
+         Derivation "Lnk_Out.PROVR_ID"
+         Group "0"
+         ParsedDerivation "Lnk_Out.PROVR_ID"
+         SourceColumn "Lnk_Out.PROVR_ID"
+         SortKey "0"
+         SortType "0"
+         TableDef "Saved\\Lnk_Src_Ds\\DS_MBR"
+         AllowCRLF "0"
+         LevelNo "0"
+         Occurs "0"
+         PadNulls "0"
+         SignOption "0"
+         SortingOrder "0"
+         ArrayHandling "0"
+         SyncIndicator "0"
+         PadChar ""
+         ColumnReference "MBR_ID"
+         ExtendedPrecision "0"
+         TaggedSubrec "0"
+         OccursVarying "0"
+         PKeyIsCaseless "0"
+         SCDPurpose "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ELIGIBLE_FROM"
+         Description "<none>"
+         SqlType "9"
+         Precision "10"
+         Scale "0"
+         Nullable "1"
+         KeyPosition "0"
+         DisplaySize "10"
+         Derivation "Lnk_Out.ELIGIBLE_FROM"
+         Group "0"
+         ParsedDerivation "Lnk_Out.ELIGIBLE_FROM"
+         SourceColumn "Lnk_Out.ELIGIBLE_FROM"
+         SortKey "0"
+         SortType "0"
+         TableDef "Saved\\Lnk_Src_Ds\\DS_MBR"
+         AllowCRLF "0"
+         LevelNo "0"
+         Occurs "0"
+         PadNulls "0"
+         SignOption "0"
+         SortingOrder "0"
+         ArrayHandling "0"
+         SyncIndicator "0"
+         PadChar ""
+         ColumnReference "MBR_EFFV_DT"
+         ExtendedPrecision "0"
+         TaggedSubrec "0"
+         OccursVarying "0"
+         PKeyIsCaseless "0"
+         SCDPurpose "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ELIGIBLE_TO"
+         SqlType "9"
+         Precision "10"
+         Scale "0"
+         Nullable "1"
+         KeyPosition "0"
+         DisplaySize "0"
+         Derivation "Lnk_Out.ELIGIBLE_TO"
+         Group "0"
+         ParsedDerivation "Lnk_Out.ELIGIBLE_TO"
+         SourceColumn "Lnk_Out.ELIGIBLE_TO"
+         SortKey "0"
+         SortType "0"
+         AllowCRLF "0"
+         LevelNo "0"
+         Occurs "0"
+         PadNulls "0"
+         SignOption "0"
+         SortingOrder "0"
+         ArrayHandling "0"
+         SyncIndicator "0"
+         PadChar ""
+         ExtendedPrecision "0"
+         TaggedSubrec "0"
+         OccursVarying "0"
+         PKeyIsCaseless "0"
+         SCDPurpose "0"
+      END DSSUBRECORD
+      MetaBag "CMetaProperty"
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "DiskWriteInc"
+         Value "1048576"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "BufFreeRun"
+         Value "50"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "MaxMemBufSize"
+         Value "3145728"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "QueueUpperSize"
+         Value "0"
+      END DSSUBRECORD
+      LeftTextPos "996"
+      TopTextPos "320"
+      LinkMinimised "0"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S63"
+      OLEType "CCustomStage"
+      Readonly "0"
+      Name "Jn_Date"
+      NextID "4"
+      InputPins "V0S63P1|V0S63P2"
+      OutputPins "V0S63P3"
+      StageType "PxJoin"
+      AllowColumnMapping "0"
+      Properties "CCustomProperty"
+      BEGIN DSSUBRECORD
+         Name "operator"
+         Value "innerjoin"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "key"
+         Value "\(2)\(2)0\(1)\(3)key\(2)PROVR_ID\(2)0"
+      END DSSUBRECORD
+      NextRecordID "0"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S63P1"
+      OLEType "CCustomInput"
+      Readonly "0"
+      Name "Lnk_In_Provr"
+      Partner "V5S0|V5S0P1"
+      LinkType "1"
+      ConditionNotMet "fail"
+      LookupFail "fail"
+      MetaBag "CMetaProperty"
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "RTColumnProp"
+         Value "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "Part/Col"
+         Value "hash -key PROVR_ID -cs"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "Sort"
+         Value "tsort -key PROVR_ID -cs -asc"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "SortAdv"
+         Value "-nonStable"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "_PartColSortColumns"
+         Value "PROVR_ID"
+      END DSSUBRECORD
+      TransactionSize "0"
+      TXNBehaviour "0"
+      EnableTxGroup "0"
+      LinkMinimised "0"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S63P2"
+      OLEType "CCustomInput"
+      Readonly "0"
+      Name "Lnk_In_MaxElgt"
+      Partner "V9S0|V9S0P1"
+      LinkType "1"
+      ConditionNotMet "fail"
+      LookupFail "fail"
+      MetaBag "CMetaProperty"
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "RTColumnProp"
+         Value "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "Part/Col"
+         Value "hash -key PROVR_ID -cs"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "Sort"
+         Value "tsort -key PROVR_ID -cs -asc"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "SortAdv"
+         Value "-nonStable"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "_PartColSortColumns"
+         Value "PROVR_ID"
+      END DSSUBRECORD
+      TransactionSize "0"
+      TXNBehaviour "0"
+      EnableTxGroup "0"
+      LinkMinimised "0"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S63P3"
+      OLEType "CCustomOutput"
+      Readonly "0"
+      Name "Lnk_In_LkUp"
+      Partner "V0S69|V0S69P1"
+      Columns "COutputColumn"
+      BEGIN DSSUBRECORD
+         Name "PROVR_ID"
+         Description "<none>"
+         SqlType "12"
+         Precision "50"
+         Scale "0"
+         Nullable "0"
+         KeyPosition "0"
+         DisplaySize "20"
+         Derivation "Lnk_In_Provr.PROVR_ID"
+         Group "0"
+         ParsedDerivation "Lnk_In_Provr.PROVR_ID"
+         SourceColumn "Lnk_In_Provr.PROVR_ID"
+         SortKey "0"
+         SortType "0"
+         TableDef "Saved\\Lnk_Src_Ds\\DS_MBR"
+         AllowCRLF "0"
+         LevelNo "0"
+         Occurs "0"
+         PadNulls "0"
+         SignOption "0"
+         SortingOrder "0"
+         ArrayHandling "0"
+         SyncIndicator "0"
+         PadChar ""
+         ColumnReference "MBR_ID"
+         ExtendedPrecision "0"
+         TaggedSubrec "0"
+         OccursVarying "0"
+         PKeyIsCaseless "0"
+         SCDPurpose "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ELIGIBLE_FROM"
+         Description "<none>"
+         SqlType "9"
+         Precision "10"
+         Scale "0"
+         Nullable "1"
+         KeyPosition "0"
+         DisplaySize "10"
+         Derivation "Lnk_In_Provr.ELIGIBLE_FROM"
+         Group "0"
+         ParsedDerivation "Lnk_In_Provr.ELIGIBLE_FROM"
+         SourceColumn "Lnk_In_Provr.ELIGIBLE_FROM"
+         SortKey "0"
+         SortType "0"
+         TableDef "Saved\\Lnk_Src_Ds\\DS_MBR"
+         AllowCRLF "0"
+         LevelNo "0"
+         Occurs "0"
+         PadNulls "0"
+         SignOption "0"
+         SortingOrder "0"
+         ArrayHandling "0"
+         SyncIndicator "0"
+         PadChar ""
+         ColumnReference "MBR_EFFV_DT"
+         ExtendedPrecision "0"
+         TaggedSubrec "0"
+         OccursVarying "0"
+         PKeyIsCaseless "0"
+         SCDPurpose "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ELIGIBLE_TO"
+         SqlType "9"
+         Precision "10"
+         Scale "0"
+         Nullable "1"
+         KeyPosition "0"
+         DisplaySize "0"
+         Derivation "Lnk_In_Provr.ELIGIBLE_TO"
+         Group "0"
+         ParsedDerivation "Lnk_In_Provr.ELIGIBLE_TO"
+         SourceColumn "Lnk_In_Provr.ELIGIBLE_TO"
+         SortKey "0"
+         SortType "0"
+         AllowCRLF "0"
+         LevelNo "0"
+         Occurs "0"
+         PadNulls "0"
+         SignOption "0"
+         SortingOrder "0"
+         ArrayHandling "0"
+         SyncIndicator "0"
+         PadChar ""
+         ExtendedPrecision "0"
+         TaggedSubrec "0"
+         OccursVarying "0"
+         PKeyIsCaseless "0"
+         SCDPurpose "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "MAX_ELGT"
+         Description "<none>"
+         SqlType "9"
+         Precision "10"
+         Scale "0"
+         Nullable "1"
+         KeyPosition "0"
+         DisplaySize "10"
+         Derivation "Lnk_In_MaxElgt.MAX_ELGT"
+         Group "0"
+         ParsedDerivation "Lnk_In_MaxElgt.MAX_ELGT"
+         SourceColumn "Lnk_In_MaxElgt.MAX_ELGT"
+         SortKey "0"
+         SortType "0"
+         TableDef "Saved\\Lnk_Src_Ds\\DS_MBR"
+         AllowCRLF "0"
+         LevelNo "0"
+         Occurs "0"
+         PadNulls "0"
+         SignOption "0"
+         SortingOrder "0"
+         ArrayHandling "0"
+         SyncIndicator "0"
+         PadChar ""
+         ColumnReference "MBR_EFFV_DT"
+         ExtendedPrecision "0"
+         TaggedSubrec "0"
+         OccursVarying "0"
+         PKeyIsCaseless "0"
+         SCDPurpose "0"
+      END DSSUBRECORD
+      MetaBag "CMetaProperty"
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "DiskWriteInc"
+         Value "1048576"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "BufFreeRun"
+         Value "50"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "MaxMemBufSize"
+         Value "3145728"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "QueueUpperSize"
+         Value "0"
+      END DSSUBRECORD
+      LeftTextPos "352"
+      TopTextPos "319"
+      LinkMinimised "0"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S69"
+      OLEType "CCustomStage"
+      Readonly "0"
+      Name "LkUp_Dt"
+      NextID "5"
+      InputPins "V0S69P1|V0S69P3"
+      OutputPins "V0S69P2"
+      StageType "PxLookup"
+      AllowColumnMapping "0"
+      MetaBag "CMetaProperty"
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "LookupOperator"
+         Value "lookup"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "RefKeysUsed"
+         Value "|Lnk_In_ProvrFrom_Dt.ELIGIBLE_FROM|"
+      END DSSUBRECORD
+      NextRecordID "0"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S69P1"
+      OLEType "CCustomInput"
+      Readonly "0"
+      Name "Lnk_In_LkUp"
+      Partner "V0S63|V0S63P3"
+      LinkType "1"
+      ConditionNotMet "fail"
+      LookupFail "fail"
+      Properties "CCustomProperty"
+      BEGIN DSSUBRECORD
+         Name "allow_dups"
+         Value " "
+      END DSSUBRECORD
+      MetaBag "CMetaProperty"
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "RTColumnProp"
+         Value "0"
+      END DSSUBRECORD
+      TransactionSize "0"
+      TXNBehaviour "0"
+      EnableTxGroup "0"
+      LinkMinimised "0"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S69P2"
+      OLEType "CCustomOutput"
+      Readonly "0"
+      Name "Lnk_Out_Frm"
+      Partner "V0S82|V0S82P1"
+      Columns "COutputColumn"
+      BEGIN DSSUBRECORD
+         Name "PROVR_ID"
+         Description "<none>"
+         SqlType "12"
+         Precision "50"
+         Scale "0"
+         Nullable "0"
+         KeyPosition "0"
+         DisplaySize "20"
+         Derivation "Lnk_In_LkUp.PROVR_ID"
+         Group "0"
+         ParsedDerivation "Lnk_In_LkUp.PROVR_ID"
+         SourceColumn "Lnk_In_LkUp.PROVR_ID"
+         SortKey "0"
+         SortType "0"
+         TableDef "Saved\\Lnk_Src_Ds\\DS_MBR"
+         AllowCRLF "0"
+         LevelNo "0"
+         Occurs "0"
+         PadNulls "0"
+         SignOption "0"
+         SortingOrder "0"
+         ArrayHandling "0"
+         SyncIndicator "0"
+         PadChar ""
+         ColumnReference "MBR_ID"
+         ExtendedPrecision "0"
+         TaggedSubrec "0"
+         OccursVarying "0"
+         PKeyIsCaseless "0"
+         SCDPurpose "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ELIGIBLE_FROM"
+         Description "<none>"
+         SqlType "9"
+         Precision "10"
+         Scale "0"
+         Nullable "1"
+         KeyPosition "0"
+         DisplaySize "10"
+         Derivation "Lnk_In_LkUp.ELIGIBLE_FROM"
+         Group "0"
+         ParsedDerivation "Lnk_In_LkUp.ELIGIBLE_FROM"
+         SourceColumn "Lnk_In_LkUp.ELIGIBLE_FROM"
+         SortKey "0"
+         SortType "0"
+         TableDef "Saved\\Lnk_Src_Ds\\DS_MBR"
+         AllowCRLF "0"
+         LevelNo "0"
+         Occurs "0"
+         PadNulls "0"
+         SignOption "0"
+         SortingOrder "0"
+         ArrayHandling "0"
+         SyncIndicator "0"
+         PadChar ""
+         ColumnReference "MBR_EFFV_DT"
+         ExtendedPrecision "0"
+         TaggedSubrec "0"
+         OccursVarying "0"
+         PKeyIsCaseless "0"
+         SCDPurpose "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ELIGIBLE_TO"
+         SqlType "9"
+         Precision "10"
+         Scale "0"
+         Nullable "1"
+         KeyPosition "0"
+         DisplaySize "0"
+         Derivation "Lnk_In_LkUp.ELIGIBLE_TO"
+         Group "0"
+         ParsedDerivation "Lnk_In_LkUp.ELIGIBLE_TO"
+         SourceColumn "Lnk_In_LkUp.ELIGIBLE_TO"
+         SortKey "0"
+         SortType "0"
+         AllowCRLF "0"
+         LevelNo "0"
+         Occurs "0"
+         PadNulls "0"
+         SignOption "0"
+         SortingOrder "0"
+         ArrayHandling "0"
+         SyncIndicator "0"
+         PadChar ""
+         ExtendedPrecision "0"
+         TaggedSubrec "0"
+         OccursVarying "0"
+         PKeyIsCaseless "0"
+         SCDPurpose "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "MAX_ELGT"
+         Description "<none>"
+         SqlType "9"
+         Precision "10"
+         Scale "0"
+         Nullable "1"
+         KeyPosition "0"
+         DisplaySize "10"
+         Derivation "Lnk_In_LkUp.MAX_ELGT"
+         Group "0"
+         ParsedDerivation "Lnk_In_LkUp.MAX_ELGT"
+         SourceColumn "Lnk_In_LkUp.MAX_ELGT"
+         SortKey "0"
+         SortType "0"
+         TableDef "Saved\\Lnk_Src_Ds\\DS_MBR"
+         AllowCRLF "0"
+         LevelNo "0"
+         Occurs "0"
+         PadNulls "0"
+         SignOption "0"
+         SortingOrder "0"
+         ArrayHandling "0"
+         SyncIndicator "0"
+         PadChar ""
+         ColumnReference "MBR_EFFV_DT"
+         ExtendedPrecision "0"
+         TaggedSubrec "0"
+         OccursVarying "0"
+         PKeyIsCaseless "0"
+         SCDPurpose "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ELIGIBLE_FROM_ORIG"
+         Description "<none>"
+         SqlType "9"
+         Precision "10"
+         Scale "0"
+         Nullable "1"
+         KeyPosition "0"
+         DisplaySize "10"
+         Derivation "Lnk_In_ProvrFrom_Dt.ELIGIBLE_FROM"
+         Group "0"
+         ParsedDerivation "Lnk_In_ProvrFrom_Dt.ELIGIBLE_FROM"
+         SourceColumn "Lnk_In_ProvrFrom_Dt.ELIGIBLE_FROM"
+         KeyExpression "Lnk_In_LkUp.ELIGIBLE_FROM"
+         SortKey "0"
+         SortType "0"
+         TableDef "Saved\\Lnk_Src_Ds\\DS_MBR"
+         AllowCRLF "0"
+         LevelNo "0"
+         Occurs "0"
+         PadNulls "0"
+         SignOption "0"
+         SortingOrder "0"
+         ArrayHandling "0"
+         SyncIndicator "0"
+         PadChar ""
+         ColumnReference "MBR_EFFV_DT"
+         ExtendedPrecision "0"
+         TaggedSubrec "0"
+         OccursVarying "0"
+         PKeyParsedDerivation "Lnk_In_LkUp.ELIGIBLE_FROM"
+         PKeySourceColumn "Lnk_In_LkUp.ELIGIBLE_FROM"
+         PKeyIsCaseless "0"
+         SCDPurpose "0"
+      END DSSUBRECORD
+      MetaBag "CMetaProperty"
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "DiskWriteInc"
+         Value "1048576"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "BufFreeRun"
+         Value "50"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "MaxMemBufSize"
+         Value "3145728"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "QueueUpperSize"
+         Value "0"
+      END DSSUBRECORD
+      LeftTextPos "480"
+      TopTextPos "369"
+      LinkMinimised "0"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S69P3"
+      OLEType "CCustomInput"
+      Readonly "0"
+      Name "Lnk_In_ProvrFrom_Dt"
+      Partner "V10S0|V10S0P1"
+      LinkType "2"
+      ConditionNotMet "continue"
+      LookupFail "continue"
+      Properties "CCustomProperty"
+      BEGIN DSSUBRECORD
+         Name "allow_dups"
+         Value " "
+      END DSSUBRECORD
+      MetaBag "CMetaProperty"
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "RTColumnProp"
+         Value "0"
+      END DSSUBRECORD
+      TransactionSize "0"
+      TXNBehaviour "0"
+      EnableTxGroup "0"
+      LinkMinimised "0"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S73"
+      OLEType "CCustomStage"
+      Readonly "0"
+      Name "Ftr_Dt"
+      NextID "3"
+      InputPins "V0S73P1"
+      OutputPins "V0S73P2"
+      StageType "PxFilter"
+      AllowColumnMapping "0"
+      Properties "CCustomProperty"
+      BEGIN DSSUBRECORD
+         Name "where"
+         Value "\(2)\(2)0\(1)\(3)where\(2)ELIGIBLE_FROM < ELIGIBLE_TO\(2)0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "first"
+         Value " "
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "reject"
+         Value " "
+      END DSSUBRECORD
+      NextRecordID "0"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S73P1"
+      OLEType "CCustomInput"
+      Readonly "0"
+      Name "Lnk_Out_RemDup"
+      Partner "V0S59|V0S59P2"
+      LinkType "1"
+      ConditionNotMet "fail"
+      LookupFail "fail"
+      MetaBag "CMetaProperty"
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "RTColumnProp"
+         Value "0"
+      END DSSUBRECORD
+      TransactionSize "0"
+      TXNBehaviour "0"
+      EnableTxGroup "0"
+      LinkMinimised "0"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S73P2"
+      OLEType "CCustomOutput"
+      Readonly "0"
+      Name "Lnk_Tgt_Itm_Mtx"
+      Partner "V0S57|V0S57P3"
+      Columns "COutputColumn"
+      BEGIN DSSUBRECORD
+         Name "PROVR_ID"
+         Description "<none>"
+         SqlType "12"
+         Precision "50"
+         Scale "0"
+         Nullable "0"
+         KeyPosition "0"
+         DisplaySize "20"
+         Derivation "Lnk_Out_RemDup.PROVR_ID"
+         Group "0"
+         ParsedDerivation "Lnk_Out_RemDup.PROVR_ID"
+         SourceColumn "Lnk_Out_RemDup.PROVR_ID"
+         SortKey "0"
+         SortType "0"
+         TableDef "Saved\\Lnk_Src_Ds\\DS_MBR"
+         AllowCRLF "0"
+         LevelNo "0"
+         Occurs "0"
+         PadNulls "0"
+         SignOption "0"
+         SortingOrder "0"
+         ArrayHandling "0"
+         SyncIndicator "0"
+         PadChar ""
+         ColumnReference "MBR_ID"
+         ExtendedPrecision "0"
+         TaggedSubrec "0"
+         OccursVarying "0"
+         PKeyIsCaseless "0"
+         SCDPurpose "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ELIGIBLE_FROM"
+         Description "<none>"
+         SqlType "9"
+         Precision "10"
+         Scale "0"
+         Nullable "1"
+         KeyPosition "0"
+         DisplaySize "10"
+         Derivation "Lnk_Out_RemDup.ELIGIBLE_FROM"
+         Group "0"
+         ParsedDerivation "Lnk_Out_RemDup.ELIGIBLE_FROM"
+         SourceColumn "Lnk_Out_RemDup.ELIGIBLE_FROM"
+         SortKey "0"
+         SortType "0"
+         TableDef "Saved\\Lnk_Src_Ds\\DS_MBR"
+         AllowCRLF "0"
+         LevelNo "0"
+         Occurs "0"
+         PadNulls "0"
+         SignOption "0"
+         SortingOrder "0"
+         ArrayHandling "0"
+         SyncIndicator "0"
+         PadChar ""
+         ColumnReference "MBR_EFFV_DT"
+         ExtendedPrecision "0"
+         TaggedSubrec "0"
+         OccursVarying "0"
+         PKeyIsCaseless "0"
+         SCDPurpose "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ELIGIBLE_TO"
+         SqlType "9"
+         Precision "10"
+         Scale "0"
+         Nullable "1"
+         KeyPosition "0"
+         DisplaySize "0"
+         Derivation "Lnk_Out_RemDup.ELIGIBLE_TO"
+         Group "0"
+         ParsedDerivation "Lnk_Out_RemDup.ELIGIBLE_TO"
+         SourceColumn "Lnk_Out_RemDup.ELIGIBLE_TO"
+         SortKey "0"
+         SortType "0"
+         AllowCRLF "0"
+         LevelNo "0"
+         Occurs "0"
+         PadNulls "0"
+         SignOption "0"
+         SortingOrder "0"
+         ArrayHandling "0"
+         SyncIndicator "0"
+         PadChar ""
+         ExtendedPrecision "0"
+         TaggedSubrec "0"
+         OccursVarying "0"
+         PKeyIsCaseless "0"
+         SCDPurpose "0"
+      END DSSUBRECORD
+      MetaBag "CMetaProperty"
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "DiskWriteInc"
+         Value "1048576"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "BufFreeRun"
+         Value "50"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "MaxMemBufSize"
+         Value "3145728"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "QueueUpperSize"
+         Value "0"
+      END DSSUBRECORD
+      LeftTextPos "1212"
+      TopTextPos "319"
+      LinkMinimised "0"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S82"
+      OLEType "CCustomStage"
+      Readonly "0"
+      Name "LkUp_To_Dt"
+      NextID "4"
+      InputPins "V0S82P1|V0S82P2"
+      OutputPins "V0S82P3"
+      StageType "PxLookup"
+      AllowColumnMapping "0"
+      MetaBag "CMetaProperty"
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "LookupOperator"
+         Value "lookup"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "RefKeysUsed"
+         Value "|Lnk_In_ProvrTo_Dt.ELIGIBLE_TO|"
+      END DSSUBRECORD
+      NextRecordID "0"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S82P1"
+      OLEType "CCustomInput"
+      Readonly "0"
+      Name "Lnk_Out_Frm"
+      Partner "V0S69|V0S69P2"
+      LinkType "1"
+      ConditionNotMet "fail"
+      LookupFail "fail"
+      Properties "CCustomProperty"
+      BEGIN DSSUBRECORD
+         Name "allow_dups"
+         Value " "
+      END DSSUBRECORD
+      MetaBag "CMetaProperty"
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "RTColumnProp"
+         Value "0"
+      END DSSUBRECORD
+      TransactionSize "0"
+      TXNBehaviour "0"
+      EnableTxGroup "0"
+      LinkMinimised "0"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S82P2"
+      OLEType "CCustomInput"
+      Readonly "0"
+      Name "Lnk_In_ProvrTo_Dt"
+      Partner "V11S0|V11S0P1"
+      LinkType "2"
+      ConditionNotMet "continue"
+      LookupFail "continue"
+      Properties "CCustomProperty"
+      BEGIN DSSUBRECORD
+         Name "allow_dups"
+         Value " "
+      END DSSUBRECORD
+      MetaBag "CMetaProperty"
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "RTColumnProp"
+         Value "0"
+      END DSSUBRECORD
+      TransactionSize "0"
+      TXNBehaviour "0"
+      EnableTxGroup "0"
+      LinkMinimised "0"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S82P3"
+      OLEType "CCustomOutput"
+      Readonly "0"
+      Name "Lnk_In_Tfm"
+      Partner "V0S55|V0S55P6"
+      Columns "COutputColumn"
+      BEGIN DSSUBRECORD
+         Name "PROVR_ID"
+         Description "<none>"
+         SqlType "12"
+         Precision "50"
+         Scale "0"
+         Nullable "0"
+         KeyPosition "0"
+         DisplaySize "20"
+         Derivation "Lnk_Out_Frm.PROVR_ID"
+         Group "0"
+         ParsedDerivation "Lnk_Out_Frm.PROVR_ID"
+         SourceColumn "Lnk_Out_Frm.PROVR_ID"
+         SortKey "0"
+         SortType "0"
+         TableDef "Saved\\Lnk_Src_Ds\\DS_MBR"
+         AllowCRLF "0"
+         LevelNo "0"
+         Occurs "0"
+         PadNulls "0"
+         SignOption "0"
+         SortingOrder "0"
+         ArrayHandling "0"
+         SyncIndicator "0"
+         PadChar ""
+         ColumnReference "MBR_ID"
+         ExtendedPrecision "0"
+         TaggedSubrec "0"
+         OccursVarying "0"
+         PKeyIsCaseless "0"
+         SCDPurpose "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ELIGIBLE_FROM"
+         Description "<none>"
+         SqlType "9"
+         Precision "10"
+         Scale "0"
+         Nullable "1"
+         KeyPosition "0"
+         DisplaySize "10"
+         Derivation "Lnk_Out_Frm.ELIGIBLE_FROM"
+         Group "0"
+         ParsedDerivation "Lnk_Out_Frm.ELIGIBLE_FROM"
+         SourceColumn "Lnk_Out_Frm.ELIGIBLE_FROM"
+         SortKey "0"
+         SortType "0"
+         TableDef "Saved\\Lnk_Src_Ds\\DS_MBR"
+         AllowCRLF "0"
+         LevelNo "0"
+         Occurs "0"
+         PadNulls "0"
+         SignOption "0"
+         SortingOrder "0"
+         ArrayHandling "0"
+         SyncIndicator "0"
+         PadChar ""
+         ColumnReference "MBR_EFFV_DT"
+         ExtendedPrecision "0"
+         TaggedSubrec "0"
+         OccursVarying "0"
+         PKeyIsCaseless "0"
+         SCDPurpose "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ELIGIBLE_TO"
+         SqlType "9"
+         Precision "10"
+         Scale "0"
+         Nullable "1"
+         KeyPosition "0"
+         DisplaySize "0"
+         Derivation "Lnk_Out_Frm.ELIGIBLE_TO"
+         Group "0"
+         ParsedDerivation "Lnk_Out_Frm.ELIGIBLE_TO"
+         SourceColumn "Lnk_Out_Frm.ELIGIBLE_TO"
+         SortKey "0"
+         SortType "0"
+         AllowCRLF "0"
+         LevelNo "0"
+         Occurs "0"
+         PadNulls "0"
+         SignOption "0"
+         SortingOrder "0"
+         ArrayHandling "0"
+         SyncIndicator "0"
+         PadChar ""
+         ExtendedPrecision "0"
+         TaggedSubrec "0"
+         OccursVarying "0"
+         PKeyIsCaseless "0"
+         SCDPurpose "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "MAX_ELGT"
+         Description "<none>"
+         SqlType "9"
+         Precision "10"
+         Scale "0"
+         Nullable "1"
+         KeyPosition "0"
+         DisplaySize "10"
+         Derivation "Lnk_Out_Frm.MAX_ELGT"
+         Group "0"
+         ParsedDerivation "Lnk_Out_Frm.MAX_ELGT"
+         SourceColumn "Lnk_Out_Frm.MAX_ELGT"
+         SortKey "0"
+         SortType "0"
+         TableDef "Saved\\Lnk_Src_Ds\\DS_MBR"
+         AllowCRLF "0"
+         LevelNo "0"
+         Occurs "0"
+         PadNulls "0"
+         SignOption "0"
+         SortingOrder "0"
+         ArrayHandling "0"
+         SyncIndicator "0"
+         PadChar ""
+         ColumnReference "MBR_EFFV_DT"
+         ExtendedPrecision "0"
+         TaggedSubrec "0"
+         OccursVarying "0"
+         PKeyIsCaseless "0"
+         SCDPurpose "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ELIGIBLE_FROM_ORIG"
+         Description "<none>"
+         SqlType "9"
+         Precision "10"
+         Scale "0"
+         Nullable "1"
+         KeyPosition "0"
+         DisplaySize "10"
+         Derivation "Lnk_Out_Frm.ELIGIBLE_FROM_ORIG"
+         Group "0"
+         ParsedDerivation "Lnk_Out_Frm.ELIGIBLE_FROM_ORIG"
+         SourceColumn "Lnk_Out_Frm.ELIGIBLE_FROM_ORIG"
+         KeyExpression "Lnk_In_LkUp.ELIGIBLE_FROM"
+         SortKey "0"
+         SortType "0"
+         TableDef "Saved\\Lnk_Src_Ds\\DS_MBR"
+         AllowCRLF "0"
+         LevelNo "0"
+         Occurs "0"
+         PadNulls "0"
+         SignOption "0"
+         SortingOrder "0"
+         ArrayHandling "0"
+         SyncIndicator "0"
+         PadChar ""
+         ColumnReference "MBR_EFFV_DT"
+         ExtendedPrecision "0"
+         TaggedSubrec "0"
+         OccursVarying "0"
+         PKeyParsedDerivation "Lnk_In_LkUp.ELIGIBLE_FROM"
+         PKeySourceColumn "Lnk_In_LkUp.ELIGIBLE_FROM"
+         PKeyIsCaseless "0"
+         SCDPurpose "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ELIGIBLE_TO_ORIG"
+         SqlType "9"
+         Precision "10"
+         Scale "0"
+         Nullable "1"
+         KeyPosition "1"
+         DisplaySize "0"
+         Derivation "Lnk_In_ProvrTo_Dt.ELIGIBLE_TO"
+         Group "0"
+         ParsedDerivation "Lnk_In_ProvrTo_Dt.ELIGIBLE_TO"
+         SourceColumn "Lnk_In_ProvrTo_Dt.ELIGIBLE_TO"
+         KeyExpression "Lnk_Out_Frm.ELIGIBLE_TO"
+         SortKey "0"
+         SortType "0"
+         AllowCRLF "0"
+         LevelNo "0"
+         Occurs "0"
+         PadNulls "0"
+         SignOption "0"
+         SortingOrder "0"
+         ArrayHandling "0"
+         SyncIndicator "0"
+         PadChar ""
+         ExtendedPrecision "0"
+         TaggedSubrec "0"
+         OccursVarying "0"
+         PKeyParsedDerivation "Lnk_Out_Frm.ELIGIBLE_TO"
+         PKeySourceColumn "Lnk_Out_Frm.ELIGIBLE_TO"
+         PKeyIsCaseless "0"
+         SCDPurpose "0"
+      END DSSUBRECORD
+      MetaBag "CMetaProperty"
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "DiskWriteInc"
+         Value "1048576"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "BufFreeRun"
+         Value "50"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "MaxMemBufSize"
+         Value "3145728"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "QueueUpperSize"
+         Value "0"
+      END DSSUBRECORD
+      LeftTextPos "676"
+      TopTextPos "372"
+      LinkMinimised "0"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V10S0"
+      OLEType "CCustomStage"
+      Readonly "0"
+      Name "Db_Ref_FromDt"
+      NextID "2"
+      OutputPins "V10S0P1"
+      StageType "DB2ConnectorPX"
+      AllowColumnMapping "0"
+      Properties "CCustomProperty"
+      BEGIN DSSUBRECORD
+         Name "VariantName"
+         Value "9.1"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "VariantLibrary"
+         Value "ccdb2"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "VariantVersion"
+         Value "1.0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "SupportedVariants"
+         Value "V1;9.1::ccdb2"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "SupportedVariantsLibraries"
+         Value "ccdb2"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "SupportedVariantsVersions"
+         Value "1.0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "Orientation"
+         Value "link"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectFromLink"
+         Value "-1"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectThreshold"
+         Value "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectNumber"
+         Value "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectUsesPercentage"
+         Value "false"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConnectorName"
+         Value "DB2Connector"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "Engine"
+         Value "EE"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "Context"
+         Value "source"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConnectionString"
+         Value "/Connection/Database"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "Username"
+         Value "/Connection/Username"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "Password"
+         Value "/Connection/Password"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "Instance"
+         Value "/Connection/Instance"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "DB2ClientLibFile"
+         Value "/Connection/DB2ClientLibFile"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "Conductor"
+         Value "/Connection/Conductor"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConductorInstance"
+         Value "/Connection/Conductor/Instance"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConductorDatabase"
+         Value "/Connection/Conductor/Database"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConductorUsername"
+         Value "/Connection/Conductor/Username"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConductorPassword"
+         Value "/Connection/Conductor/Password"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConductorDB2ClientLibFile"
+         Value "/Connection/Conductor/DB2ClientLibFile"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "XMLProperties"
+         Value =+=+=+=
+<?xml version='1.0' encoding='UTF-16'?><Properties version='1.1'><Common><Context type='int'>1</Context><Variant type='string'>9.1</Variant><DescriptorVersion type='string'>1.0</DescriptorVersion><PartitionType type='int'>-1</PartitionType><RCP type='int'>0</RCP></Common><Connection><Instance modified='1' type='string'><![CDATA[#PsetNeDmaConnection.$DB2Instance#]]></Instance><Database modified='1' type='string'><![CDATA[#PsetNeDmaConnection.$DB2Name#]]></Database><Username modified='1' type='string'><![CDATA[#PsetNeDmaConnection.$DB2UserName#]]></Username><Password modified='1' type='string'><![CDATA[#PsetNeDmaConnection.$DB2Password#]]></Password><Conductor collapsed='1' type='bool'><![CDATA[0]]></Conductor><UseDirectConnections type='bool'><![CDATA[0]]></UseDirectConnections><KeepConductorConnectionAlive type='bool'><![CDATA[1]]></KeepConductorConnectionAlive></Connection><Usage><MigratedJob type='bool'><![CDATA[0]]></MigratedJob><GenerateSQL type='bool'><![CDATA[0]]></GenerateSQL><EnableQuotedIDs type='bool'><![CDATA[0]]></EnableQuotedIDs><XMLColumnAsLOB type='bool'><![CDATA[0]]></XMLColumnAsLOB><PrefixForExpressionColumns type='string'><![CDATA[EXPR]]></PrefixForExpressionColumns><SQL><SelectStatement modified='1' type='string'><![CDATA[ SELECT distinct PROVR_ID, ELIGIBLE_FROM,ELIGIBLE_TO FROM (
+ SELECT  distinct PROVR_ID, ELIGIBLE_FROM,ELIGIBLE_TO
+ FROM (
+ SELECT distinct PROVR_ID, ELIGIBLE_FROM, ELIGIBLE_TO
+ FROM #PsetNeDmaConnection.$DB2SchemaNameIds#.T_PROVR_ELGT 
+ WHERE EFFV_END_DATE = '9999-12-31'  AND FILE_TYPE = '#FILE_TYPE#'
+ 
+ Union All 
+ SELECT distinct PROVR_ID, PROVR_TAXONOMY_CLS_EFFV_DT AS ELIGIBLE_FROM, PROVR_TAXONOMY_CLS_END_DT AS ELIGIBLE_TO
+ FROM #PsetNeDmaConnection.$DB2SchemaNameIds#.T_PROVR_TAXONOMY_CLASS 
+ WHERE EFFV_END_DATE = '9999-12-31'  AND FILE_TYPE = '#FILE_TYPE#'
+
+ Union All 
+ SELECT distinct PROVR_ID, PROVR_ENRL_EFFV_DT AS ELIGIBLE_FROM, PROVR_ENRL_END_DT AS ELIGIBLE_TO
+ FROM #PsetNeDmaConnection.$DB2SchemaNameIds#.T_PROVR_ENROLLMENT
+ WHERE EFFV_END_DATE = '9999-12-31' AND FILE_TYPE = '#FILE_TYPE#'
+ 
+ Union All
+ SELECT distinct GRP_MBR_PROVR_ID AS PROVR_ID,BEGIN_EFFV_DT AS ELIGIBLE_FROM,END_EFFV_DT AS ELIGIBLE_TO 
+ FROM #PsetNeDmaConnection.$DB2SchemaNameIds#.T_GROUP_PROVR
+ )
+ Union All
+ SELECT distinct PROVR_ID, ELIGIBLE_FROM,ELIGIBLE_TO
+ FROM (
+ SELECT distinct PROVR_ID, ELIGIBLE_FROM, ELIGIBLE_TO
+ FROM #PsetNeDmaConnection.$DB2SchemaNameIds#.T_PROVR_ELGT 
+ WHERE EFFV_END_DATE = '9999-12-31' AND FILE_TYPE = '#FILE_TYPE#'
+ 
+ Union All 
+ SELECT distinct PROVR_ID, PROVR_TAXONOMY_CLS_EFFV_DT AS ELIGIBLE_FROM, PROVR_TAXONOMY_CLS_END_DT AS ELIGIBLE_TO
+ FROM #PsetNeDmaConnection.$DB2SchemaNameIds#.T_PROVR_TAXONOMY_CLASS 
+ WHERE EFFV_END_DATE = '9999-12-31' AND FILE_TYPE = '#FILE_TYPE#'
+ Union All 
+ 
+ SELECT distinct PROVR_ID, PROVR_ENRL_EFFV_DT AS ELIGIBLE_FROM, PROVR_ENRL_END_DT AS ELIGIBLE_TO
+ FROM #PsetNeDmaConnection.$DB2SchemaNameIds#.T_PROVR_ENROLLMENT
+ WHERE EFFV_END_DATE = '9999-12-31' AND FILE_TYPE = '#FILE_TYPE#'
+ 
+ Union All
+ SELECT distinct GRP_MBR_PROVR_ID AS PROVR_ID,BEGIN_EFFV_DT AS ELIGIBLE_FROM,END_EFFV_DT AS ELIGIBLE_TO 
+ FROM #PsetNeDmaConnection.$DB2SchemaNameIds#.T_GROUP_PROVR
+ )
+ );]]><ReadFromFileSelect type='bool'><![CDATA[0]]></ReadFromFileSelect><Tables collapsed='1'></Tables><Parameters collapsed='1'></Parameters><Columns collapsed='1'></Columns></SelectStatement><EnablePartitioning collapsed='1' type='bool'><![CDATA[0]]></EnablePartitioning></SQL><Transaction><RecordCount type='int'><![CDATA[2000]]></RecordCount><EndOfWave collapsed='1' type='int'><![CDATA[0]]></EndOfWave></Transaction><Session><IsolationLevel type='int'><![CDATA[1]]></IsolationLevel><AutocommitMode type='int'><![CDATA[0]]></AutocommitMode><ArraySize type='int'><![CDATA[2000]]></ArraySize><SchemaReconciliation><FailOnSizeMismatch type='bool'><![CDATA[1]]></FailOnSizeMismatch><FailOnTypeMismatch type='bool'><![CDATA[1]]></FailOnTypeMismatch><FailOnCodePageMismatch type='bool'><![CDATA[0]]></FailOnCodePageMismatch></SchemaReconciliation><PassLobLocator collapsed='1' type='bool'><![CDATA[0]]></PassLobLocator></Session><BeforeAfter collapsed='1' type='bool'><![CDATA[0]]></BeforeAfter><ReOptimization type='int'><![CDATA[2]]></ReOptimization><LockWaitMode collapsed='1' type='int'><![CDATA[1]]></LockWaitMode><LimitRows collapsed='1' type='bool'><![CDATA[0]]></LimitRows></Usage></Properties >
+=+=+=+=
+      END DSSUBRECORD
+      NextRecordID "0"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V10S0P1"
+      OLEType "CCustomOutput"
+      Readonly "0"
+      Name "Lnk_In_ProvrFrom_Dt"
+      Partner "V0S69|V0S69P3"
+      Properties "CCustomProperty"
+      BEGIN DSSUBRECORD
+         Name "lookup\\type"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "VariantName"
+         Value "9.1"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "VariantLibrary"
+         Value "ccdb2"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "VariantVersion"
+         Value "1.0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectFromLink"
+         Value "-1"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectThreshold"
+         Value "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectNumber"
+         Value "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectUsesPercentage"
+         Value "false"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConnectorName"
+         Value "DB2Connector"
+      END DSSUBRECORD
+      Columns "COutputColumn"
+      BEGIN DSSUBRECORD
+         Name "PROVR_ID"
+         Description "<none>"
+         SqlType "12"
+         Precision "50"
+         Scale "0"
+         Nullable "0"
+         KeyPosition "1"
+         DisplaySize "20"
+         Group "0"
+         KeyExpression "Lnk_In_LkUp.PROVR_ID"
+         SortKey "0"
+         SortType "0"
+         TableDef "Saved\\Lnk_Src_Ds\\DS_MBR"
+         AllowCRLF "0"
+         LevelNo "0"
+         Occurs "0"
+         PadNulls "0"
+         SignOption "0"
+         SortingOrder "0"
+         ArrayHandling "0"
+         SyncIndicator "0"
+         PadChar ""
+         ColumnReference "MBR_ID"
+         ExtendedPrecision "0"
+         TaggedSubrec "0"
+         OccursVarying "0"
+         PKeyParsedDerivation "Lnk_In_LkUp.PROVR_ID"
+         PKeySourceColumn "Lnk_In_LkUp.PROVR_ID"
+         PKeyIsCaseless "0"
+         SCDPurpose "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ELIGIBLE_FROM"
+         Description "<none>"
+         SqlType "9"
+         Precision "10"
+         Scale "0"
+         Nullable "1"
+         KeyPosition "1"
+         DisplaySize "10"
+         Group "0"
+         KeyExpression "Lnk_In_LkUp.ELIGIBLE_FROM"
+         SortKey "0"
+         SortType "0"
+         TableDef "Saved\\Lnk_Src_Ds\\DS_MBR"
+         AllowCRLF "0"
+         LevelNo "0"
+         Occurs "0"
+         PadNulls "0"
+         SignOption "0"
+         SortingOrder "0"
+         ArrayHandling "0"
+         SyncIndicator "0"
+         PadChar ""
+         ColumnReference "MBR_EFFV_DT"
+         ExtendedPrecision "0"
+         TaggedSubrec "0"
+         OccursVarying "0"
+         PKeyParsedDerivation "Lnk_In_LkUp.ELIGIBLE_FROM"
+         PKeySourceColumn "Lnk_In_LkUp.ELIGIBLE_FROM"
+         PKeyIsCaseless "0"
+         SCDPurpose "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ELIGIBLE_TO"
+         SqlType "9"
+         Precision "10"
+         Scale "0"
+         Nullable "1"
+         KeyPosition "0"
+         DisplaySize "0"
+         Group "0"
+         SortKey "0"
+         SortType "0"
+         AllowCRLF "0"
+         LevelNo "0"
+         Occurs "0"
+         PadNulls "0"
+         SignOption "0"
+         SortingOrder "0"
+         ArrayHandling "0"
+         SyncIndicator "0"
+         PadChar ""
+         ExtendedPrecision "0"
+         TaggedSubrec "0"
+         OccursVarying "0"
+         PKeyIsCaseless "0"
+         SCDPurpose "0"
+      END DSSUBRECORD
+      MetaBag "CMetaProperty"
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "DiskWriteInc"
+         Value "1048576"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "BufFreeRun"
+         Value "50"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "MaxMemBufSize"
+         Value "3145728"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "QueueUpperSize"
+         Value "0"
+      END DSSUBRECORD
+      LeftTextPos "480"
+      TopTextPos "191"
+      LinkMinimised "0"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V11S0"
+      OLEType "CCustomStage"
+      Readonly "0"
+      Name "Db_Ref_ToDt"
+      NextID "2"
+      OutputPins "V11S0P1"
+      StageType "DB2ConnectorPX"
+      AllowColumnMapping "0"
+      Properties "CCustomProperty"
+      BEGIN DSSUBRECORD
+         Name "VariantName"
+         Value "9.1"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "VariantLibrary"
+         Value "ccdb2"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "VariantVersion"
+         Value "1.0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "SupportedVariants"
+         Value "V1;9.1::ccdb2"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "SupportedVariantsLibraries"
+         Value "ccdb2"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "SupportedVariantsVersions"
+         Value "1.0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "Orientation"
+         Value "link"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectFromLink"
+         Value "-1"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectThreshold"
+         Value "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectNumber"
+         Value "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectUsesPercentage"
+         Value "false"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConnectorName"
+         Value "DB2Connector"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "Engine"
+         Value "EE"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "Context"
+         Value "source"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConnectionString"
+         Value "/Connection/Database"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "Username"
+         Value "/Connection/Username"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "Password"
+         Value "/Connection/Password"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "Instance"
+         Value "/Connection/Instance"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "DB2ClientLibFile"
+         Value "/Connection/DB2ClientLibFile"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "Conductor"
+         Value "/Connection/Conductor"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConductorInstance"
+         Value "/Connection/Conductor/Instance"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConductorDatabase"
+         Value "/Connection/Conductor/Database"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConductorUsername"
+         Value "/Connection/Conductor/Username"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConductorPassword"
+         Value "/Connection/Conductor/Password"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConductorDB2ClientLibFile"
+         Value "/Connection/Conductor/DB2ClientLibFile"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "XMLProperties"
+         Value =+=+=+=
+<?xml version='1.0' encoding='UTF-16'?><Properties version='1.1'><Common><Context type='int'>1</Context><Variant type='string'>9.1</Variant><DescriptorVersion type='string'>1.0</DescriptorVersion><PartitionType type='int'>-1</PartitionType><RCP type='int'>0</RCP></Common><Connection><Instance modified='1' type='string'><![CDATA[#PsetNeDmaConnection.$DB2Instance#]]></Instance><Database modified='1' type='string'><![CDATA[#PsetNeDmaConnection.$DB2Name#]]></Database><Username modified='1' type='string'><![CDATA[#PsetNeDmaConnection.$DB2UserName#]]></Username><Password modified='1' type='string'><![CDATA[#PsetNeDmaConnection.$DB2Password#]]></Password><Conductor collapsed='1' type='bool'><![CDATA[0]]></Conductor><UseDirectConnections type='bool'><![CDATA[0]]></UseDirectConnections><KeepConductorConnectionAlive type='bool'><![CDATA[1]]></KeepConductorConnectionAlive></Connection><Usage><MigratedJob type='bool'><![CDATA[0]]></MigratedJob><GenerateSQL type='bool'><![CDATA[0]]></GenerateSQL><EnableQuotedIDs type='bool'><![CDATA[0]]></EnableQuotedIDs><XMLColumnAsLOB type='bool'><![CDATA[0]]></XMLColumnAsLOB><PrefixForExpressionColumns type='string'><![CDATA[EXPR]]></PrefixForExpressionColumns><SQL><SelectStatement modified='1' type='string'><![CDATA[SELECT distinct PROVR_ID, ELIGIBLE_FROM,ELIGIBLE_TO FROM (
+ SELECT  distinct PROVR_ID, ELIGIBLE_FROM,ELIGIBLE_TO
+ FROM (
+ SELECT distinct PROVR_ID, ELIGIBLE_FROM, ELIGIBLE_TO
+ FROM #PsetNeDmaConnection.$DB2SchemaNameIds#.T_PROVR_ELGT 
+ WHERE EFFV_END_DATE = '9999-12-31' AND FILE_TYPE = '#FILE_TYPE#'
+ 
+ Union All 
+ SELECT distinct PROVR_ID, PROVR_TAXONOMY_CLS_EFFV_DT AS ELIGIBLE_FROM, PROVR_TAXONOMY_CLS_END_DT AS ELIGIBLE_TO
+ FROM #PsetNeDmaConnection.$DB2SchemaNameIds#.T_PROVR_TAXONOMY_CLASS 
+ WHERE EFFV_END_DATE = '9999-12-31' AND FILE_TYPE = '#FILE_TYPE#'
+
+ Union All 
+ SELECT distinct PROVR_ID, PROVR_ENRL_EFFV_DT AS ELIGIBLE_FROM, PROVR_ENRL_END_DT AS ELIGIBLE_TO
+ FROM #PsetNeDmaConnection.$DB2SchemaNameIds#.T_PROVR_ENROLLMENT
+ WHERE EFFV_END_DATE = '9999-12-31' AND FILE_TYPE = '#FILE_TYPE#'
+ 
+ Union All
+ SELECT distinct GRP_MBR_PROVR_ID AS PROVR_ID,BEGIN_EFFV_DT AS ELIGIBLE_FROM,END_EFFV_DT AS ELIGIBLE_TO 
+ FROM #PsetNeDmaConnection.$DB2SchemaNameIds#.T_GROUP_PROVR
+ )
+ Union All
+ SELECT distinct PROVR_ID, ELIGIBLE_FROM,ELIGIBLE_TO
+ FROM (
+ SELECT distinct PROVR_ID, ELIGIBLE_FROM, ELIGIBLE_TO
+ FROM #PsetNeDmaConnection.$DB2SchemaNameIds#.T_PROVR_ELGT 
+ WHERE EFFV_END_DATE = '9999-12-31'  AND FILE_TYPE = '#FILE_TYPE#'
+ 
+ Union All 
+ SELECT distinct PROVR_ID, PROVR_TAXONOMY_CLS_EFFV_DT AS ELIGIBLE_FROM, PROVR_TAXONOMY_CLS_END_DT AS ELIGIBLE_TO
+ FROM #PsetNeDmaConnection.$DB2SchemaNameIds#.T_PROVR_TAXONOMY_CLASS 
+ WHERE EFFV_END_DATE = '9999-12-31' AND FILE_TYPE = '#FILE_TYPE#'
+
+ Union All 
+ SELECT distinct PROVR_ID, PROVR_ENRL_EFFV_DT AS ELIGIBLE_FROM, PROVR_ENRL_END_DT AS ELIGIBLE_TO
+ FROM #PsetNeDmaConnection.$DB2SchemaNameIds#.T_PROVR_ENROLLMENT
+ WHERE EFFV_END_DATE = '9999-12-31' AND FILE_TYPE = '#FILE_TYPE#'
+ 
+ Union All
+ SELECT distinct GRP_MBR_PROVR_ID AS PROVR_ID,BEGIN_EFFV_DT AS ELIGIBLE_FROM,END_EFFV_DT AS ELIGIBLE_TO 
+ FROM #PsetNeDmaConnection.$DB2SchemaNameIds#.T_GROUP_PROVR
+ )
+ ); ]]><ReadFromFileSelect type='bool'><![CDATA[0]]></ReadFromFileSelect><Tables collapsed='1'></Tables><Parameters collapsed='1'></Parameters><Columns collapsed='1'></Columns></SelectStatement><EnablePartitioning collapsed='1' type='bool'><![CDATA[0]]></EnablePartitioning></SQL><Transaction><RecordCount type='int'><![CDATA[2000]]></RecordCount><EndOfWave collapsed='1' type='int'><![CDATA[0]]></EndOfWave></Transaction><Session><IsolationLevel type='int'><![CDATA[1]]></IsolationLevel><AutocommitMode type='int'><![CDATA[0]]></AutocommitMode><ArraySize type='int'><![CDATA[2000]]></ArraySize><SchemaReconciliation><FailOnSizeMismatch type='bool'><![CDATA[1]]></FailOnSizeMismatch><FailOnTypeMismatch type='bool'><![CDATA[1]]></FailOnTypeMismatch><FailOnCodePageMismatch type='bool'><![CDATA[0]]></FailOnCodePageMismatch></SchemaReconciliation><PassLobLocator collapsed='1' type='bool'><![CDATA[0]]></PassLobLocator></Session><BeforeAfter collapsed='1' type='bool'><![CDATA[0]]></BeforeAfter><ReOptimization type='int'><![CDATA[2]]></ReOptimization><LockWaitMode collapsed='1' type='int'><![CDATA[1]]></LockWaitMode><LimitRows collapsed='1' type='bool'><![CDATA[0]]></LimitRows></Usage></Properties >
+=+=+=+=
+      END DSSUBRECORD
+      NextRecordID "0"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V11S0P1"
+      OLEType "CCustomOutput"
+      Readonly "0"
+      Name "Lnk_In_ProvrTo_Dt"
+      Partner "V0S82|V0S82P2"
+      Properties "CCustomProperty"
+      BEGIN DSSUBRECORD
+         Name "lookup\\type"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "VariantName"
+         Value "9.1"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "VariantLibrary"
+         Value "ccdb2"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "VariantVersion"
+         Value "1.0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectFromLink"
+         Value "-1"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectThreshold"
+         Value "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectNumber"
+         Value "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectUsesPercentage"
+         Value "false"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConnectorName"
+         Value "DB2Connector"
+      END DSSUBRECORD
+      Columns "COutputColumn"
+      BEGIN DSSUBRECORD
+         Name "PROVR_ID"
+         Description "<none>"
+         SqlType "12"
+         Precision "50"
+         Scale "0"
+         Nullable "0"
+         KeyPosition "1"
+         DisplaySize "20"
+         Group "0"
+         KeyExpression "Lnk_Out_Frm.PROVR_ID"
+         SortKey "0"
+         SortType "0"
+         TableDef "Saved\\Lnk_Src_Ds\\DS_MBR"
+         AllowCRLF "0"
+         LevelNo "0"
+         Occurs "0"
+         PadNulls "0"
+         SignOption "0"
+         SortingOrder "0"
+         ArrayHandling "0"
+         SyncIndicator "0"
+         PadChar ""
+         ColumnReference "MBR_ID"
+         ExtendedPrecision "0"
+         TaggedSubrec "0"
+         OccursVarying "0"
+         PKeyParsedDerivation "Lnk_Out_Frm.PROVR_ID"
+         PKeySourceColumn "Lnk_Out_Frm.PROVR_ID"
+         PKeyIsCaseless "0"
+         SCDPurpose "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ELIGIBLE_FROM"
+         Description "<none>"
+         SqlType "9"
+         Precision "10"
+         Scale "0"
+         Nullable "1"
+         KeyPosition "0"
+         DisplaySize "10"
+         Group "0"
+         SortKey "0"
+         SortType "0"
+         TableDef "Saved\\Lnk_Src_Ds\\DS_MBR"
+         AllowCRLF "0"
+         LevelNo "0"
+         Occurs "0"
+         PadNulls "0"
+         SignOption "0"
+         SortingOrder "0"
+         ArrayHandling "0"
+         SyncIndicator "0"
+         PadChar ""
+         ColumnReference "MBR_EFFV_DT"
+         ExtendedPrecision "0"
+         TaggedSubrec "0"
+         OccursVarying "0"
+         PKeyIsCaseless "0"
+         SCDPurpose "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ELIGIBLE_TO"
+         SqlType "9"
+         Precision "10"
+         Scale "0"
+         Nullable "1"
+         KeyPosition "1"
+         DisplaySize "0"
+         Group "0"
+         KeyExpression "Lnk_Out_Frm.ELIGIBLE_TO"
+         SortKey "0"
+         SortType "0"
+         AllowCRLF "0"
+         LevelNo "0"
+         Occurs "0"
+         PadNulls "0"
+         SignOption "0"
+         SortingOrder "0"
+         ArrayHandling "0"
+         SyncIndicator "0"
+         PadChar ""
+         ExtendedPrecision "0"
+         TaggedSubrec "0"
+         OccursVarying "0"
+         PKeyParsedDerivation "Lnk_Out_Frm.ELIGIBLE_TO"
+         PKeySourceColumn "Lnk_Out_Frm.ELIGIBLE_TO"
+         PKeyIsCaseless "0"
+         SCDPurpose "0"
+      END DSSUBRECORD
+      MetaBag "CMetaProperty"
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "DiskWriteInc"
+         Value "1048576"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "BufFreeRun"
+         Value "50"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "MaxMemBufSize"
+         Value "3145728"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "QueueUpperSize"
+         Value "0"
+      END DSSUBRECORD
+      LeftTextPos "538"
+      TopTextPos "514"
+      LinkMinimised "0"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V5S0"
+      OLEType "CCustomStage"
+      Readonly "0"
+      Name "Db_Provr_Tx"
+      NextID "2"
+      OutputPins "V5S0P1"
+      StageType "DB2ConnectorPX"
+      AllowColumnMapping "0"
+      Properties "CCustomProperty"
+      BEGIN DSSUBRECORD
+         Name "VariantName"
+         Value "9.1"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "VariantLibrary"
+         Value "ccdb2"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "VariantVersion"
+         Value "1.0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "SupportedVariants"
+         Value "V1;9.1::ccdb2"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "SupportedVariantsLibraries"
+         Value "ccdb2"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "SupportedVariantsVersions"
+         Value "1.0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "Orientation"
+         Value "link"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectFromLink"
+         Value "-1"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectThreshold"
+         Value "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectNumber"
+         Value "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectUsesPercentage"
+         Value "false"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConnectorName"
+         Value "DB2Connector"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "Engine"
+         Value "EE"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "Context"
+         Value "source"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConnectionString"
+         Value "/Connection/Database"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "Username"
+         Value "/Connection/Username"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "Password"
+         Value "/Connection/Password"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "Instance"
+         Value "/Connection/Instance"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "DB2ClientLibFile"
+         Value "/Connection/DB2ClientLibFile"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "Conductor"
+         Value "/Connection/Conductor"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConductorInstance"
+         Value "/Connection/Conductor/Instance"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConductorDatabase"
+         Value "/Connection/Conductor/Database"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConductorUsername"
+         Value "/Connection/Conductor/Username"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConductorPassword"
+         Value "/Connection/Conductor/Password"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConductorDB2ClientLibFile"
+         Value "/Connection/Conductor/DB2ClientLibFile"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "XMLProperties"
+         Value =+=+=+=
+<?xml version='1.0' encoding='UTF-16'?><Properties version='1.1'><Common><Context type='int'>1</Context><Variant type='string'>9.1</Variant><DescriptorVersion type='string'>1.0</DescriptorVersion><PartitionType type='int'>-1</PartitionType><RCP type='int'>0</RCP></Common><Connection><Instance modified='1' type='string'><![CDATA[#PsetNeDmaConnection.$DB2Instance#]]></Instance><Database modified='1' type='string'><![CDATA[#PsetNeDmaConnection.$DB2Name#]]></Database><Username modified='1' type='string'><![CDATA[#PsetNeDmaConnection.$DB2UserName#]]></Username><Password modified='1' type='string'><![CDATA[#PsetNeDmaConnection.$DB2Password#]]></Password><Conductor collapsed='1' type='bool'><![CDATA[0]]></Conductor><UseDirectConnections type='bool'><![CDATA[0]]></UseDirectConnections><KeepConductorConnectionAlive type='bool'><![CDATA[1]]></KeepConductorConnectionAlive></Connection><Usage><MigratedJob type='bool'><![CDATA[0]]></MigratedJob><GenerateSQL type='bool'><![CDATA[0]]></GenerateSQL><EnableQuotedIDs type='bool'><![CDATA[0]]></EnableQuotedIDs><XMLColumnAsLOB type='bool'><![CDATA[0]]></XMLColumnAsLOB><PrefixForExpressionColumns type='string'><![CDATA[EXPR]]></PrefixForExpressionColumns><SQL><SelectStatement modified='1' type='string'><![CDATA[  SELECT distinct PROVR_ID, DATE AS ELIGIBLE_FROM, lead(DATE) over  (Partition By PROVR_ID order by PROVR_ID,DATE) AS  ELIGIBLE_TO FROM (
+ SELECT distinct PROVR_ID, DATE FROM (
+ SELECT distinct PROVR_ID, ELIGIBLE_FROM AS DATE
+ FROM (
+ SELECT distinct PROVR_ID, ELIGIBLE_FROM, ELIGIBLE_TO
+ FROM #PsetNeDmaConnection.$DB2SchemaNameIds#.T_PROVR_ELGT 
+ WHERE EFFV_END_DATE = '9999-12-31'  AND FILE_TYPE = '#FILE_TYPE#'
+ 
+ Union All 
+ SELECT distinct PROVR_ID, PROVR_TAXONOMY_CLS_EFFV_DT AS ELIGIBLE_FROM, PROVR_TAXONOMY_CLS_END_DT AS ELIGIBLE_TO
+ FROM #PsetNeDmaConnection.$DB2SchemaNameIds#.T_PROVR_TAXONOMY_CLASS 
+ WHERE EFFV_END_DATE = '9999-12-31'  AND FILE_TYPE = '#FILE_TYPE#'
+
+ Union All 
+ SELECT distinct PROVR_ID, PROVR_ENRL_EFFV_DT AS ELIGIBLE_FROM, PROVR_ENRL_END_DT AS ELIGIBLE_TO
+ FROM #PsetNeDmaConnection.$DB2SchemaNameIds#.T_PROVR_ENROLLMENT
+ WHERE EFFV_END_DATE = '9999-12-31'  AND FILE_TYPE = '#FILE_TYPE#'
+ 
+ Union All
+ SELECT distinct GRP_MBR_PROVR_ID AS PROVR_ID,BEGIN_EFFV_DT AS ELIGIBLE_FROM,END_EFFV_DT AS ELIGIBLE_TO 
+ FROM #PsetNeDmaConnection.$DB2SchemaNameIds#.T_GROUP_PROVR
+ )
+ Union All
+ SELECT distinct PROVR_ID, ELIGIBLE_TO AS DATE
+ FROM (
+ SELECT distinct PROVR_ID, ELIGIBLE_FROM, ELIGIBLE_TO
+ FROM #PsetNeDmaConnection.$DB2SchemaNameIds#.T_PROVR_ELGT 
+ WHERE EFFV_END_DATE = '9999-12-31'  AND FILE_TYPE = '#FILE_TYPE#'
+
+ Union All 
+ SELECT distinct PROVR_ID, PROVR_TAXONOMY_CLS_EFFV_DT AS ELIGIBLE_FROM, PROVR_TAXONOMY_CLS_END_DT AS ELIGIBLE_TO
+ FROM #PsetNeDmaConnection.$DB2SchemaNameIds#.T_PROVR_TAXONOMY_CLASS 
+ WHERE EFFV_END_DATE = '9999-12-31'  AND FILE_TYPE = '#FILE_TYPE#'
+ 
+ Union All 
+ SELECT distinct PROVR_ID, PROVR_ENRL_EFFV_DT AS ELIGIBLE_FROM, PROVR_ENRL_END_DT AS ELIGIBLE_TO
+ FROM #PsetNeDmaConnection.$DB2SchemaNameIds#.T_PROVR_ENROLLMENT
+ WHERE EFFV_END_DATE = '9999-12-31'  AND FILE_TYPE = '#FILE_TYPE#'
+ 
+ Union All
+ SELECT distinct GRP_MBR_PROVR_ID AS PROVR_ID,BEGIN_EFFV_DT AS ELIGIBLE_FROM,END_EFFV_DT AS ELIGIBLE_TO 
+ FROM #PsetNeDmaConnection.$DB2SchemaNameIds#.T_GROUP_PROVR
+ )
+ ) ORDER BY DATE ASC
+ );]]><ReadFromFileSelect type='bool'><![CDATA[0]]></ReadFromFileSelect><Tables collapsed='1'></Tables><Parameters collapsed='1'></Parameters><Columns collapsed='1'></Columns></SelectStatement><EnablePartitioning collapsed='1' type='bool'><![CDATA[0]]></EnablePartitioning></SQL><Transaction><RecordCount type='int'><![CDATA[2000]]></RecordCount><EndOfWave collapsed='1' type='int'><![CDATA[0]]></EndOfWave></Transaction><Session><IsolationLevel type='int'><![CDATA[1]]></IsolationLevel><AutocommitMode type='int'><![CDATA[0]]></AutocommitMode><ArraySize type='int'><![CDATA[2000]]></ArraySize><SchemaReconciliation><FailOnSizeMismatch type='bool'><![CDATA[1]]></FailOnSizeMismatch><FailOnTypeMismatch type='bool'><![CDATA[1]]></FailOnTypeMismatch><FailOnCodePageMismatch type='bool'><![CDATA[0]]></FailOnCodePageMismatch></SchemaReconciliation><PassLobLocator collapsed='1' type='bool'><![CDATA[0]]></PassLobLocator></Session><BeforeAfter collapsed='1' type='bool'><![CDATA[0]]></BeforeAfter><ReOptimization type='int'><![CDATA[2]]></ReOptimization><LockWaitMode collapsed='1' type='int'><![CDATA[1]]></LockWaitMode><LimitRows collapsed='1' type='bool'><![CDATA[0]]></LimitRows></Usage></Properties >
+=+=+=+=
+      END DSSUBRECORD
+      NextRecordID "0"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V5S0P1"
+      OLEType "CCustomOutput"
+      Readonly "0"
+      Name "Lnk_In_Provr"
+      Partner "V0S63|V0S63P1"
+      Properties "CCustomProperty"
+      BEGIN DSSUBRECORD
+         Name "lookup\\type"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "VariantName"
+         Value "9.1"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "VariantLibrary"
+         Value "ccdb2"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "VariantVersion"
+         Value "1.0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectFromLink"
+         Value "-1"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectThreshold"
+         Value "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectNumber"
+         Value "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectUsesPercentage"
+         Value "false"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConnectorName"
+         Value "DB2Connector"
+      END DSSUBRECORD
+      Columns "COutputColumn"
+      BEGIN DSSUBRECORD
+         Name "PROVR_ID"
+         Description "<none>"
+         SqlType "12"
+         Precision "50"
+         Scale "0"
+         Nullable "0"
+         KeyPosition "0"
+         DisplaySize "20"
+         Group "0"
+         SortKey "0"
+         SortType "0"
+         TableDef "Saved\\Lnk_Src_Ds\\DS_MBR"
+         AllowCRLF "0"
+         LevelNo "0"
+         Occurs "0"
+         PadNulls "0"
+         SignOption "0"
+         SortingOrder "0"
+         ArrayHandling "0"
+         SyncIndicator "0"
+         PadChar ""
+         ColumnReference "MBR_ID"
+         ExtendedPrecision "0"
+         TaggedSubrec "0"
+         OccursVarying "0"
+         PKeyIsCaseless "0"
+         SCDPurpose "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ELIGIBLE_FROM"
+         Description "<none>"
+         SqlType "9"
+         Precision "10"
+         Scale "0"
+         Nullable "1"
+         KeyPosition "0"
+         DisplaySize "10"
+         Group "0"
+         SortKey "0"
+         SortType "0"
+         TableDef "Saved\\Lnk_Src_Ds\\DS_MBR"
+         AllowCRLF "0"
+         LevelNo "0"
+         Occurs "0"
+         PadNulls "0"
+         SignOption "0"
+         SortingOrder "0"
+         ArrayHandling "0"
+         SyncIndicator "0"
+         PadChar ""
+         ColumnReference "MBR_EFFV_DT"
+         ExtendedPrecision "0"
+         TaggedSubrec "0"
+         OccursVarying "0"
+         PKeyIsCaseless "0"
+         SCDPurpose "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ELIGIBLE_TO"
+         SqlType "9"
+         Precision "10"
+         Scale "0"
+         Nullable "1"
+         KeyPosition "0"
+         DisplaySize "0"
+         Group "0"
+         SortKey "0"
+         SortType "0"
+         AllowCRLF "0"
+         LevelNo "0"
+         Occurs "0"
+         PadNulls "0"
+         SignOption "0"
+         SortingOrder "0"
+         ArrayHandling "0"
+         SyncIndicator "0"
+         PadChar ""
+         ExtendedPrecision "0"
+         TaggedSubrec "0"
+         OccursVarying "0"
+         PKeyIsCaseless "0"
+         SCDPurpose "0"
+      END DSSUBRECORD
+      MetaBag "CMetaProperty"
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "DiskWriteInc"
+         Value "1048576"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "BufFreeRun"
+         Value "50"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "MaxMemBufSize"
+         Value "3145728"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "QueueUpperSize"
+         Value "0"
+      END DSSUBRECORD
+      LeftTextPos "205"
+      TopTextPos "241"
+      LinkMinimised "0"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V9S0"
+      OLEType "CCustomStage"
+      Readonly "0"
+      Name "Db_Provr_MaxElgt"
+      NextID "2"
+      OutputPins "V9S0P1"
+      StageType "DB2ConnectorPX"
+      AllowColumnMapping "0"
+      Properties "CCustomProperty"
+      BEGIN DSSUBRECORD
+         Name "VariantName"
+         Value "9.1"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "VariantLibrary"
+         Value "ccdb2"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "VariantVersion"
+         Value "1.0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "SupportedVariants"
+         Value "V1;9.1::ccdb2"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "SupportedVariantsLibraries"
+         Value "ccdb2"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "SupportedVariantsVersions"
+         Value "1.0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "Orientation"
+         Value "link"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectFromLink"
+         Value "-1"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectThreshold"
+         Value "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectNumber"
+         Value "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectUsesPercentage"
+         Value "false"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConnectorName"
+         Value "DB2Connector"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "Engine"
+         Value "EE"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "Context"
+         Value "source"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConnectionString"
+         Value "/Connection/Database"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "Username"
+         Value "/Connection/Username"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "Password"
+         Value "/Connection/Password"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "Instance"
+         Value "/Connection/Instance"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "DB2ClientLibFile"
+         Value "/Connection/DB2ClientLibFile"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "Conductor"
+         Value "/Connection/Conductor"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConductorInstance"
+         Value "/Connection/Conductor/Instance"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConductorDatabase"
+         Value "/Connection/Conductor/Database"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConductorUsername"
+         Value "/Connection/Conductor/Username"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConductorPassword"
+         Value "/Connection/Conductor/Password"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConductorDB2ClientLibFile"
+         Value "/Connection/Conductor/DB2ClientLibFile"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "XMLProperties"
+         Value =+=+=+=
+<?xml version='1.0' encoding='UTF-16'?><Properties version='1.1'><Common><Context type='int'>1</Context><Variant type='string'>9.1</Variant><DescriptorVersion type='string'>1.0</DescriptorVersion><PartitionType type='int'>-1</PartitionType><RCP type='int'>0</RCP></Common><Connection><Instance modified='1' type='string'><![CDATA[#PsetNeDmaConnection.$DB2Instance#]]></Instance><Database modified='1' type='string'><![CDATA[#PsetNeDmaConnection.$DB2Name#]]></Database><Username modified='1' type='string'><![CDATA[#PsetNeDmaConnection.$DB2UserName#]]></Username><Password modified='1' type='string'><![CDATA[#PsetNeDmaConnection.$DB2Password#]]></Password><Conductor collapsed='1' type='bool'><![CDATA[0]]></Conductor><UseDirectConnections type='bool'><![CDATA[0]]></UseDirectConnections><KeepConductorConnectionAlive type='bool'><![CDATA[1]]></KeepConductorConnectionAlive></Connection><Usage><MigratedJob type='bool'><![CDATA[0]]></MigratedJob><GenerateSQL type='bool'><![CDATA[0]]></GenerateSQL><EnableQuotedIDs type='bool'><![CDATA[0]]></EnableQuotedIDs><XMLColumnAsLOB type='bool'><![CDATA[0]]></XMLColumnAsLOB><PrefixForExpressionColumns type='string'><![CDATA[EXPR]]></PrefixForExpressionColumns><SQL><SelectStatement modified='1' type='string'><![CDATA[SELECT PROVR_ID, MAX(ELIGIBLE_TO) AS MAX_ELGT
+ FROM (
+ SELECT distinct PROVR_ID, ELIGIBLE_FROM, ELIGIBLE_TO
+ FROM #PsetNeDmaConnection.$DB2SchemaNameIds#.T_PROVR_ELGT 
+ WHERE EFFV_END_DATE = '9999-12-31'  AND FILE_TYPE = '#FILE_TYPE#' )
+ GROUP BY PROVR_ID]]><ReadFromFileSelect type='bool'><![CDATA[0]]></ReadFromFileSelect><Tables collapsed='1'></Tables><Parameters collapsed='1'></Parameters><Columns collapsed='1'></Columns></SelectStatement><EnablePartitioning collapsed='1' type='bool'><![CDATA[0]]></EnablePartitioning></SQL><Transaction><RecordCount type='int'><![CDATA[2000]]></RecordCount><EndOfWave collapsed='1' type='int'><![CDATA[0]]></EndOfWave></Transaction><Session><IsolationLevel type='int'><![CDATA[1]]></IsolationLevel><AutocommitMode type='int'><![CDATA[0]]></AutocommitMode><ArraySize type='int'><![CDATA[2000]]></ArraySize><SchemaReconciliation><FailOnSizeMismatch type='bool'><![CDATA[1]]></FailOnSizeMismatch><FailOnTypeMismatch type='bool'><![CDATA[1]]></FailOnTypeMismatch><FailOnCodePageMismatch type='bool'><![CDATA[0]]></FailOnCodePageMismatch></SchemaReconciliation><PassLobLocator collapsed='1' type='bool'><![CDATA[0]]></PassLobLocator></Session><BeforeAfter collapsed='1' type='bool'><![CDATA[0]]></BeforeAfter><ReOptimization type='int'><![CDATA[2]]></ReOptimization><LockWaitMode collapsed='1' type='int'><![CDATA[1]]></LockWaitMode><LimitRows collapsed='1' type='bool'><![CDATA[0]]></LimitRows></Usage></Properties >
+=+=+=+=
+      END DSSUBRECORD
+      NextRecordID "0"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V9S0P1"
+      OLEType "CCustomOutput"
+      Readonly "0"
+      Name "Lnk_In_MaxElgt"
+      Partner "V0S63|V0S63P2"
+      Properties "CCustomProperty"
+      BEGIN DSSUBRECORD
+         Name "lookup\\type"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "VariantName"
+         Value "9.1"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "VariantLibrary"
+         Value "ccdb2"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "VariantVersion"
+         Value "1.0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectFromLink"
+         Value "-1"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectThreshold"
+         Value "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectNumber"
+         Value "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "RejectUsesPercentage"
+         Value "false"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "ConnectorName"
+         Value "DB2Connector"
+      END DSSUBRECORD
+      Columns "COutputColumn"
+      BEGIN DSSUBRECORD
+         Name "PROVR_ID"
+         Description "<none>"
+         SqlType "12"
+         Precision "50"
+         Scale "0"
+         Nullable "0"
+         KeyPosition "0"
+         DisplaySize "20"
+         Group "0"
+         SortKey "0"
+         SortType "0"
+         TableDef "Saved\\Lnk_Src_Ds\\DS_MBR"
+         AllowCRLF "0"
+         LevelNo "0"
+         Occurs "0"
+         PadNulls "0"
+         SignOption "0"
+         SortingOrder "0"
+         ArrayHandling "0"
+         SyncIndicator "0"
+         PadChar ""
+         ColumnReference "MBR_ID"
+         ExtendedPrecision "0"
+         TaggedSubrec "0"
+         OccursVarying "0"
+         PKeyIsCaseless "0"
+         SCDPurpose "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Name "MAX_ELGT"
+         Description "<none>"
+         SqlType "9"
+         Precision "10"
+         Scale "0"
+         Nullable "1"
+         KeyPosition "0"
+         DisplaySize "10"
+         Group "0"
+         SortKey "0"
+         SortType "0"
+         TableDef "Saved\\Lnk_Src_Ds\\DS_MBR"
+         AllowCRLF "0"
+         LevelNo "0"
+         Occurs "0"
+         PadNulls "0"
+         SignOption "0"
+         SortingOrder "0"
+         ArrayHandling "0"
+         SyncIndicator "0"
+         PadChar ""
+         ColumnReference "MBR_EFFV_DT"
+         ExtendedPrecision "0"
+         TaggedSubrec "0"
+         OccursVarying "0"
+         PKeyIsCaseless "0"
+         SCDPurpose "0"
+      END DSSUBRECORD
+      MetaBag "CMetaProperty"
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "DiskWriteInc"
+         Value "1048576"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "BufFreeRun"
+         Value "50"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "MaxMemBufSize"
+         Value "3145728"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "QueueUpperSize"
+         Value "0"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Owner "APT"
+         Name "SchemaFormat"
+      END DSSUBRECORD
+      LeftTextPos "186"
+      TopTextPos "369"
+      LinkMinimised "0"
+   END DSRECORD
+END DSJOB
